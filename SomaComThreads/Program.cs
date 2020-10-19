@@ -8,11 +8,12 @@ namespace SomaVetoresThreads
 {
     class Program
     {
-        static long total = 0;       
+        static long total = 0;
+
         static void Main(string[] args)
         {
             Console.WriteLine("Tamanho do vetor: ");
-            // long tamanho = long.Parse(Console.ReadLine());
+            //long tamanho = long.Parse(Console.ReadLine());
             long tamanho = 10_000_000;
 
             long[] v1 = new long[tamanho];
@@ -26,7 +27,7 @@ namespace SomaVetoresThreads
                 v1[x] = rnd.Next(11);
                 v2[x] = rnd.Next(11);
             }
-            
+
             Console.WriteLine("Informe o número de threads: ");
             int numThreads = int.Parse(Console.ReadLine());
             // int numThreads = Environment.ProcessorCount;
@@ -42,7 +43,7 @@ namespace SomaVetoresThreads
                 limite[x] = diferenca * x;
             }
 
-            Task[] tarefas = new Task[numThreads];
+            Thread[] threads = new Thread[numThreads];
             long inicio, fim;
 
             Stopwatch sw = new Stopwatch();
@@ -54,13 +55,17 @@ namespace SomaVetoresThreads
                 // porque funções lambda pegam uma referência à variável
                 inicio = limite[x];
                 fim = limite[x + 1];
-                tarefas[x] = Task.Run(() => SomaVetores(v1, v2, inicio, fim));
+                threads[x] = new Thread(() => SomaVetores(v1, v2, inicio, fim));
                 // sem esse wait temos erro nas somas - não sei o porquê...
-                tarefas[x].Wait(1);
+                threads[x].Start();
+                Thread.Sleep(1);
             }
 
             // "garante" que todas as tarefas vão ser terminadas
-            Task.WaitAll(tarefas);
+            for (int i = 0; i < numThreads; i++)
+            {
+                threads[i].Join();
+            }
             sw.Stop();
 
             Console.WriteLine($"\n\nteste = { v1.Sum() + v2.Sum() }");
@@ -68,7 +73,7 @@ namespace SomaVetoresThreads
         }
 
         private static void SomaVetores(long[] v1, long[] v2, long inicio, long fim)
-        {            
+        {
             for (long x = inicio; x < fim; x++)
             {
                 // todas as threads/tarefas modificam soma
