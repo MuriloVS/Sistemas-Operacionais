@@ -17,7 +17,7 @@ namespace InverteVetorComThreads
 
             Random rnd = new Random();
 
-            // preenchendo os vetores com números randômicos (0 a 9)           
+            // preenchendo os vetores com números randômicos (1 a 9)           
             for (int x = 0; x < tamanho; x++)
             {
                 v1[x] = rnd.Next(1, 10);               
