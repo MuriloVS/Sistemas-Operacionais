@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading;
 
 namespace InverteVetorComThreads
@@ -9,17 +10,17 @@ namespace InverteVetorComThreads
         {
             Console.WriteLine("Tamanho do vetor: ");
             int tamanho = int.Parse(Console.ReadLine());
-            // long tamanho = 10;
+            // int tamanho = 10;
 
             int[] v1 = new int[tamanho];
-            // long[] v2 = new long[tamanho];
+            int[] v2 = new int[tamanho];
 
             Random rnd = new Random();
 
-            // preenchendo os vetores com números randômicos (1 a 9)           
+            // preenchendo os vetores com números randômicos (0 a 9)           
             for (int x = 0; x < tamanho; x++)
             {
-                v1[x] = rnd.Next(10);               
+                v1[x] = rnd.Next(1, 10);               
             }
 
             int numThreads;
@@ -27,7 +28,7 @@ namespace InverteVetorComThreads
 
             do
             {
-                Console.WriteLine("Informe o número de threads (deve ser múltiplo do tamamho do vetor): ");
+                Console.WriteLine("Informe o número de threads (deve ser múltiplo do tamanho do vetor): ");
                 numThreads = int.Parse(Console.ReadLine());
             } while (tamanho % numThreads != 0);
 
@@ -42,11 +43,8 @@ namespace InverteVetorComThreads
                 limite[x] = diferenca * x;
             }
             
-            // necessário inverter o vetor com os índices para espelhar o vetor original
-            Array.Reverse(limite);
-
             Thread[] threads = new Thread[numThreads];
-            int inicio, fim;
+            int inicio, fim, start;
                       
             for (int x = 0; x < numThreads; x++)
             {
@@ -54,39 +52,38 @@ namespace InverteVetorComThreads
                 // porque funções lambda pegam uma referência à variável
                 inicio = limite[x];
                 fim = limite[x + 1];
-                threads[x] = new Thread(() => MostraVetorInvertido(v1, inicio, fim));                
+                start = limite[numThreads - x] - 1;                
 
-                // iniciando as threads
-                threads[x].Start();                
-                Thread.Sleep(1);
-            }            
-
-            // garante que todas as tarefas vão ser terminadas
-            // e começamos pela última para que os vetores fiquem espelhados
-            for (int i = numThreads-1; i >= 0; i--)
-            {                                               
-                threads[i].Join();             
+                threads[x] = new Thread(() => InverteVetor(v1, v2, inicio, fim, start));
+                
+                threads[x].Start();
+                // garante que todas as tarefas vão ser terminadas
+                threads[x].Join();
             }
-            
+         
             MostraVetor(v1, tamanho);
+            MostraVetor(v2, tamanho);            
         }
 
-        private static void MostraVetorInvertido(int[] v, int inicio, int fim)
+        private static void InverteVetor(int[] v1, int[] v2, int inicio, int fim, int start)
         {
             // Console.WriteLine($"\nThread={Thread.CurrentThread.ManagedThreadId}\n");
-            for (long x = inicio-1; x >= fim; x--)
+            int ajuste = 0;
+            for (int x = inicio; x < fim; x++)
             {
-                Console.Write($"{v[x]} ");
+                v2[start - ajuste] = v1[x];
+                ajuste++;
             }
         }
 
         private static void MostraVetor(int[] v, int tamanho)
         {
-            Console.WriteLine("\nOriginal");
-            for (long x = 0; x < tamanho; x++)
+            Console.WriteLine();
+            for (int x = 0; x < tamanho; x++)
             {
                 Console.Write($"{v[x]} ");
             }
+            Console.WriteLine();
         }
     }
 }
