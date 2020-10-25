@@ -24,7 +24,16 @@ namespace MatrizesComThreads
             Console.Write("\nNúmero de linhas da colunas da matriz B: ");
             int colB = int.Parse(Console.ReadLine());
 
-            
+            // a matriz C vai guardar o resultado da multiplicação
+            var matA = new Matrix(linA, colALinB, 'A');
+            var matB = new Matrix(colALinB, colB, 'B');
+            var matC = new Matrix(matA.linha, matB.coluna, 'C');
+
+            Random rnd = new Random();
+            // necessário passar o random para o scruct, não é possível criar a variável dentro dele
+            matA.PreencheMatriz(matA, rnd);
+            matB.PreencheMatriz(matB, rnd);
+
             int numThreads;
             do
             {
@@ -32,17 +41,7 @@ namespace MatrizesComThreads
                 numThreads = int.Parse(Console.ReadLine());
             } while (linA % numThreads != 0);
 
-            Thread[] threads = new Thread[numThreads];
-
-            // a matriz C vai guardar o resultado da multiplicação
-            var matA = new Matrix(linA, colALinB);
-            var matB = new Matrix(colALinB, colB);
-            var matC = new Matrix(matA.linha, matB.coluna);
-
-            Random rnd = new Random();
-            // necessário passar o random para o scruct, não é possível criar a variável dentro dele
-            matA.PreencheMatriz(matA, rnd);
-            matB.PreencheMatriz(matB, rnd);
+            Thread[] threads = new Thread[numThreads];           
 
             // assim como no exercício do vetor eu preferi guardar os intervalos antes para facilitar a legibilidade
             int[] limites = new int[numThreads + 1];
@@ -89,20 +88,22 @@ namespace MatrizesComThreads
         public struct Matrix
         {
             // construtor deste scruct
-            public Matrix(int linha, int coluna)
-            {
+            public Matrix(int linha, int coluna, char nome)
+            {                
                 this.linha = linha;
                 this.coluna = coluna;
+                this.nome = nome;
                 matriz = new int[this.linha, this.coluna];
             }
 
             public int linha;
             public int coluna;
+            char nome;
             public int[,] matriz;
 
             public void MostraMatriz()
             {
-                Console.WriteLine();
+                Console.WriteLine($"{nome}");
                 for (int i = 0; i < linha; i++)
                 {
                     for (int j = 0; j < coluna; j++)

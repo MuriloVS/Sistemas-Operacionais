@@ -8,7 +8,7 @@ namespace InverteVetorComThreads
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Tamanho do vetor: ");
+            Console.Write("Tamanho do vetor: ");
             int tamanho = int.Parse(Console.ReadLine());
             // int tamanho = 10;
 
@@ -28,7 +28,7 @@ namespace InverteVetorComThreads
 
             do
             {
-                Console.WriteLine("Informe o número de threads (deve ser múltiplo do tamanho do vetor): ");
+                Console.Write("\nInforme o número de threads (deve ser múltiplo do tamanho do vetor): ");
                 numThreads = int.Parse(Console.ReadLine());
             } while (tamanho % numThreads != 0);
 
@@ -60,8 +60,9 @@ namespace InverteVetorComThreads
                 // garante que todas as tarefas vão ser terminadas
                 threads[x].Join();
             }
-         
+            Console.Write("\nVetor Original: ");
             MostraVetor(v1, tamanho);
+            Console.Write("\nVetor Invertido: ");
             MostraVetor(v2, tamanho);            
         }
 
