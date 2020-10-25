@@ -1,12 +1,10 @@
 ﻿/*
     Faça um programa que, dado um diretório com arquivos de texto no formato .txt,
     calcule as seguintes estatísticas para cada arquivo. Número de palavras,
-    número de vogais, número de consoantes, palavra que apareceu mais vezes no arquivo,
+    número de vogais (ok), número de consoantes (ok), palavra que apareceu mais vezes no arquivo,
     vogal mais frequente, consoantes mais frequente. Além disso, para cada arquivo do diretório,
     o programa deverá gerar um novo arquivo, contendo o conteúdo do arquivo original escrito em letras maiúsculas. 
 */
-
-
 
 using System;
 using System.Collections.Generic;
@@ -20,35 +18,51 @@ namespace ArquivoComThreads
     {
         static void Main(string[] args)
         {
-            // string[] separadores = {' ', '.', ':', '!', '?', '\t'};           
-
+            // pasta criada com alguns arquivos txt e textos de alguns sites neles
             string[] arquivos = Directory.GetFiles(@"c:\temp\", "*.txt");
             string[] textos = new string[arquivos.Length];
-            char[] vogais = new char[] { 'a', 'e', 'i', 'o', 'u' };
-            Thread[] threads = new Thread[arquivos.Length];
+            
 
+            // lendo o texto de cada arquivo
             for (int i = 0; i < arquivos.Length; i++)
             {
                 StreamReader sr = new StreamReader(arquivos[i]);
-                textos[i] = sr.ReadToEnd();
+                textos[i] = sr.ReadToEnd().Trim().ToLower();
             }
 
-            int vogal = 0, consoante = 0, inicio;
+            char[] separadores = { ' ', ',', '.', ':', '!', '?', '\t', '\n' };
+
+            string[][] words = new string[textos.Length][];
+                        
+            // var dicPalavras = new Dictionary<string, int>();            
+
+            Thread[] threads = new Thread[arquivos.Length];
+
+            char[] vogaisVetor = new char[] { 'a', 'e', 'i', 'o', 'u' };
+            int vogais = 0, consoantes = 0;
 
             for (int i = 0; i < arquivos.Length; i++)
             {
-                inicio = i;
                 threads[i] = new Thread(() => 
                 {
-                    foreach (var caractere in textos[inicio].ToLower())
-                    {                        
-                        if (vogais.Contains(caractere))
+                    foreach (var caractere in textos[i])
+                    {
+                        Console.WriteLine(caractere);
+                        if (vogaisVetor.Contains(caractere))
                         {
-                            vogal++;
+                            vogais++;
                         }
                         else if (caractere >= 'a' && caractere <= 'z')
                         {
-                            consoante++;
+                            consoantes++;
+                        }
+
+                        foreach (var texto in textos)
+                        {
+                            foreach (var palavra in texto.Split(separadores))
+                            {
+                                Console.WriteLine(palavra);
+                            }
                         }
                     }
                 });
@@ -56,9 +70,11 @@ namespace ArquivoComThreads
                 threads[i].Join();
             }          
             
-            Console.WriteLine($"Total de vogais: { vogal }");
-            Console.WriteLine($"Total de consoantes: {consoante}");
+            Console.WriteLine($"Total de vogais: { vogais }");
+            Console.WriteLine($"Total de consoantes: {consoantes}");
 
+
+            
         }
     }
 }
