@@ -1,41 +1,67 @@
-﻿using System;
+﻿/*
+    Faça um programa que multiplique duas matrizes A e B,
+    cujos dimensões são MxN e NxP, onde M pode ou não ser igual a P. (ok)
+    O tamanho das matrizes (ok) e o número de threads (?) devem ser informados pelo usuário.
+    Os valores das matrizes devem ser gerados de forma aleatória (ok)  pelo programa.
+    O programa deverá imprimir na tela as matrizes A e B bem como o resultado da sua multiplicação. (ok)
+ */
 
-namespace MatrizesTeste
+using System;
+using System.Threading;
+
+namespace MatrizesComThreads
 {
     class Program
     {
         static void Main(string[] args)
         {
-            var matA = new Matrix(2, 4);
-            var matB = new Matrix(4, 2);                     
+            Console.Write("Número de linhas da matriz A: ");
+            int linA = int.Parse(Console.ReadLine());
+
+            Console.Write("\nNúmero de colunas da matriz A. Este valor também será o número de linhas da mastriz B: ");
+            int colALinB = int.Parse(Console.ReadLine());
+
+            Console.Write("\nNúmero de linhas da colunas da matriz B: ");
+            int colB = int.Parse(Console.ReadLine());
+
+            /* ainda não tem utilidade
+            int numThreads;
+            do
+            {
+                Console.Write("\nNúmero de Threads (deve ser  múltiplo do número de linhas da matriz A): ");
+                numThreads = int.Parse(Console.ReadLine());
+            } while (linA % numThreads != 0);*/
+            
+
+            var matA = new Matrix(linA, colALinB);
+            var matB = new Matrix(colALinB, colB);
            
-            if (matA.coluna != matB.linha)
-            {
-                Console.WriteLine("Não é possível realizar esta operação");
-            }
-            else
-            {
-                PreencheMatriz(matA);
-                PreencheMatriz(matB);
-                matA.MostraMatriz();
-                matB.MostraMatriz();
-                var matC = new Matrix(matA.linha, matB.coluna);
-                MultiplicaMatriz(matA, matB, matC);
-                matC.MostraMatriz();
-            }
+            PreencheMatriz(matA);
+            PreencheMatriz(matB);
+            matA.MostraMatriz();
+            matB.MostraMatriz();
+            var matC = new Matrix(matA.linha, matB.coluna);
+            MultiplicaMatriz(matA, matB, matC);
+            matC.MostraMatriz();
+           
         }
 
         public static void MultiplicaMatriz(Matrix A, Matrix B, Matrix C)
         {
-            // int temp = 0;
             for (int linha = 0; linha < A.linha; linha++)
             {
                 for (int coluna = 0; coluna < B.coluna; coluna++)
-                {
-                    for (int i = 0; i < A.coluna; i++)
+                {                   
+                    Thread t = new Thread(() =>
                     {
-                        C.matriz[linha, coluna] += A.matriz[linha, i] * B.matriz[i, coluna];
-                    }                    
+                        for (int i = 0; i < A.coluna; i++)
+                        {
+                            C.matriz[linha, coluna] += A.matriz[linha, i] * B.matriz[i, coluna];
+                        }
+                    });
+
+                    t.Start();
+                    t.Join();
                 }
             }
         }
@@ -69,6 +95,7 @@ namespace MatrizesTeste
 
             public void MostraMatriz()
             {
+                Console.WriteLine();
                 for (int i = 0; i < linha; i++)
                 {
                     for (int j = 0; j < coluna; j++)
