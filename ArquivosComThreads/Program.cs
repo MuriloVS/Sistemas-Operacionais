@@ -79,7 +79,7 @@ namespace ArquivoComThreads
 
                     // criando e gravando os arquivos com maiúsculas
                     string arquivo = diretorio2 + nomeArquivosUpper[i];
-                    Console.WriteLine(arquivo);
+                    // Console.WriteLine(arquivo);
                     File.WriteAllText(arquivo, textos[i]);
 
                 });
