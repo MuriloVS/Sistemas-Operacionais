@@ -1,7 +1,7 @@
 ﻿/*
     Faça um programa que, dado um diretório com arquivos de texto no formato .txt,
-    calcule as seguintes estatísticas para cada arquivo. Número de palavras (?),
-    número de vogais (ok), número de consoantes (ok), palavra que apareceu mais vezes no arquivo (?),
+    calcule as seguintes estatísticas para cada arquivo. Número de palavras (ok),
+    número de vogais (ok), número de consoantes (ok), palavra que apareceu mais vezes no arquivo (ok),
     vogal mais frequente (ok), consoantes mais frequente (ok). Além disso, para cada arquivo do diretório,
     o programa deverá gerar um novo arquivo, contendo o conteúdo do arquivo original escrito em letras maiúsculas (?). 
 */
@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 
 namespace ArquivoComThreads
@@ -27,68 +28,78 @@ namespace ArquivoComThreads
             {
                 StreamReader sr = new StreamReader(arquivos[i]);
                 textos[i] = sr.ReadToEnd().Trim().ToLower();
-            }
-
-            // char[] separadores = { ' ', ',', '.', ':', '!', '?', '\t', '\n' };
-
-            // string[][] words = new string[textos.Length][];
-
-            // var dicPalavras = new Dictionary<string, int>();            
+            }                                
 
             Thread[] threads = new Thread[arquivos.Length];
 
-            // usamos dois dicionários para guardar vogais e consoantes
+            // usamos dois dicionários para guardar vogais, consoantes e palavras
             var vogaisDict = new Dictionary<char, int>()
             {
                 ['a'] = 0, ['e'] = 0, ['i'] = 0, ['o'] = 0, ['u'] = 0
             };
-            var consoantesDict = new Dictionary<char, int>();           
+            var consoantesDict = new Dictionary<char, int>();
+            var palavrasDict = new Dictionary<string, int>();
 
+            // para separar as palavras
+            char[] separadores = { ' ', ',', '.', ':', '!', '?', '\t', '\n', '\r' };
+
+            string[] stringAux;
+
+            // preenchemos os dicionários para depois podemos verificar os dados solicitados
             for (int i = 0; i < arquivos.Length; i++)
             {
+                // cada thread trabalha com o texto de um arquivo
                 threads[i] = new Thread(() => 
-                {
-                    foreach (var caractere in textos[i])
+                {   
+                    stringAux = textos[i].Split(separadores);
+                    for (int j = 0; j < stringAux.Length; j++)
                     {
-                        // caso o caractere esteja contido no dicionário de vogais acrescentamos um no campo com a chave equivalente
-                        // caso não esteja verificamos se está no intervalo entre 'a' e 'z'
-                        // não precisamos nos preocupar no else se é vogal ou não porque já teria entrado no if inicial
-                        if (vogaisDict.ContainsKey(caractere))
+                        // aqui contamos as palavras - caso ela não esteja no dicionário 
+                        // é acrescida como chave o valor inicial definido como 1 - mesma ideia para os caractes, abaixo
+                        if (palavrasDict.ContainsKey(stringAux[j]))
                         {
-                            vogaisDict[caractere]++;
+                            palavrasDict[stringAux[j]]++;
                         }
-                        else if (caractere >= 'a' && caractere <= 'z')
+                        else if (stringAux[j] != "")
                         {
-                            if (consoantesDict.ContainsKey(caractere))
-                            {
-                                consoantesDict[caractere]++;
-                            }
-                            else
-                            {
-                                consoantesDict[caractere] = 1;
-                            }                            
-                        }                       
-                       
+                            palavrasDict[stringAux[j]] = 1;
+                        }
 
-                        /*foreach (var texto in textos)
+                        // aqui contamos os caracteres
+                        foreach (var caractere in stringAux[j])
                         {
-                            foreach (var palavra in texto.Split(separadores))
+                            // caso o caractere esteja contido no dicionário de vogais acrescentamos um no campo com a chave equivalente
+                            // caso não esteja verificamos se está no intervalo entre 'a' e 'z'
+                            // não precisamos nos preocupar no else se é vogal ou não porque já teria entrado no if inicial
+                            if (vogaisDict.ContainsKey(caractere))
                             {
-                                Console.WriteLine(palavra);
+                                vogaisDict[caractere]++;
                             }
-                        }*/
-                    }
+                            else if (caractere >= 'a' && caractere <= 'z')
+                            {
+                                if (consoantesDict.ContainsKey(caractere))
+                                {
+                                    consoantesDict[caractere]++;
+                                }
+                                else
+                                {
+                                    consoantesDict[caractere] = 1;
+                                }
+                            }
+                        }
+                    } 
                 });
                 threads[i].Start();
                 threads[i].Join();
             }
 
-            int vogais = -1, consoantes = -1;
-            char vogalMaisRepetida = ' ', consoanteMaisRepetida = ' ';            
+            int vogais = -1, consoantes = -1, palavras = -1;
+            char vogalMaisRepetida = ' ', consoanteMaisRepetida = ' ';
+            string palavraMaisRepetida = new string(" ");
 
             foreach (var vogal in vogaisDict)
             {
-                Console.WriteLine($"chave {vogal.Key} valor {vogal.Value}");                
+                //Console.WriteLine($"vogal {vogal.Key} valor {vogal.Value}");                
                 if (vogal.Value > vogais)
                 {
                     vogais = vogal.Value;
@@ -98,11 +109,21 @@ namespace ArquivoComThreads
 
             foreach (var consoante in consoantesDict)
             {
-                Console.WriteLine($"chave {consoante.Key} valor {consoante.Value}");
+                //Console.WriteLine($"consoante {consoante.Key} valor {consoante.Value}");
                 if (consoante.Value > consoantes)
                 {
                     consoantes = consoante.Value;
                     consoanteMaisRepetida = consoante.Key;
+                }
+            }
+
+            foreach (var palavra in palavrasDict)
+            {
+                Console.WriteLine($"palavra  '{palavra.Key}' valor {palavra.Value}");
+                if (palavra.Value > palavras)
+                {
+                    palavras = palavra.Value;
+                    palavraMaisRepetida = palavraMaisRepetida.Replace(palavraMaisRepetida, palavra.Key);
                 }
             }
 
@@ -115,6 +136,11 @@ namespace ArquivoComThreads
                 $" { consoantesDict.Sum(x => x.Value) }" +
                 $"\nConsoante mais repetida: '{ consoanteMaisRepetida }'" +
                 $" - { consoantes } repetições");
+
+            Console.WriteLine($"\nTotal de palavras:" +
+                $" { palavrasDict.Sum(x => x.Value) }" +
+                $"\nPalavra mais repetida: '{ palavraMaisRepetida }'" +
+                $" - { palavras } repetições");
 
         }
     }
