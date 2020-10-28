@@ -67,9 +67,9 @@ namespace InverteVetorComThreads
             }
 
             Console.Write("\nVetor Original: ");
-            MostraVetor(v1, tamanho);
+            MostraVetor(v1);
             Console.Write("\nVetor Invertido: ");
-            MostraVetor(v2, tamanho);            
+            MostraVetor(v2);            
         }
 
         private static void PreencheVetor(int[] v1, Random rnd)
@@ -92,10 +92,10 @@ namespace InverteVetorComThreads
             }
         }
 
-        private static void MostraVetor(int[] v, int tamanho)
+        private static void MostraVetor(int[] v)
         {
             Console.WriteLine();
-            for (int x = 0; x < tamanho; x++)
+            for (int x = 0; x < v.Length; x++)
             {
                 Console.Write($"{v[x]} ");
             }
