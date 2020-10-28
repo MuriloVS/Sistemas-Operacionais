@@ -19,7 +19,6 @@ namespace InverteVetorComThreads
         {
             Console.Write("Tamanho do vetor: ");
             int tamanho = int.Parse(Console.ReadLine());
-            // int tamanho = 10;
 
             int[] v1 = new int[tamanho];
             int[] v2 = new int[tamanho];
@@ -28,14 +27,14 @@ namespace InverteVetorComThreads
 
             PreencheVetor(v1, rnd);            
 
-            int numThreads;
-            // int numThreads = Environment.ProcessorCount;
-
-            do
+            Console.Write("\nInforme o número de threads: ");
+            int numThreads = int.Parse(Console.ReadLine());
+            
+            // tratando um caso que não faria sentido
+            if (numThreads > tamanho)
             {
-                Console.Write("\nInforme o número de threads (deve ser múltiplo do tamanho do vetor): ");
-                numThreads = int.Parse(Console.ReadLine());
-            } while (tamanho % numThreads != 0);
+                numThreads = tamanho;
+            }
 
             // qual o tamanho de cada 'pedaço' do vetor original
             int diferenca = tamanho / numThreads;
@@ -47,19 +46,21 @@ namespace InverteVetorComThreads
             {
                 limite[x] = diferenca * x;
             }
-            
+
+            // tratando o caso quando o número de threads não é múltiplo do tamanho do vetor
+            limite[numThreads] += tamanho % numThreads;
+
             Thread[] threads = new Thread[numThreads];
-            int inicio, fim, start;
+            int inicio, fim;
                       
             for (int x = 0; x < numThreads; x++)
             {
                 // quando passamos os limites diretamente podemos ter erro de índice
-                // porque funções lambda pegam uma referência à variável
+                // porque funções lambda pegam uma referência à variável (e esta varia com 'x')
                 inicio = limite[x];
-                fim = limite[x + 1];
-                start = limite[numThreads - x] - 1;                
+                fim = limite[x + 1];               
 
-                threads[x] = new Thread(() => InverteVetor(v1, v2, inicio, fim, start));
+                threads[x] = new Thread(() => InverteVetor(v1, v2, inicio, fim));
                 
                 threads[x].Start();
                 // garante que todas as tarefas vão ser terminadas
@@ -81,13 +82,15 @@ namespace InverteVetorComThreads
             }
         }
 
-        private static void InverteVetor(int[] v1, int[] v2, int inicio, int fim, int start)
+        private static void InverteVetor(int[] v1, int[] v2, int inicio, int fim)
         {
             // Console.WriteLine($"\nThread={Thread.CurrentThread.ManagedThreadId}\n");
             int ajuste = 0;
+            // o cálculo para acertar a posição do v2 precisou ser modificado
+            // acredito que usando a variável 'início' do que 'x' fica mais claro para entender
             for (int x = inicio; x < fim; x++)
             {
-                v2[start - ajuste] = v1[x];
+                v2[v2.Length - inicio - ajuste - 1] = v1[x];
                 ajuste++;
             }
         }
