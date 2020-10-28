@@ -1,17 +1,16 @@
 ﻿/*
     Faça um programa que, dado um diretório com arquivos de texto no formato .txt,
     calcule as seguintes estatísticas para cada arquivo. Número de palavras (ok),
-    número de vogais (ok), número de consoantes (ok), palavra que apareceu mais vezes no arquivo (ok),
-    vogal mais frequente (ok), consoantes mais frequente (ok). Além disso, para cada arquivo do diretório,
-    o programa deverá gerar um novo arquivo, contendo o conteúdo do arquivo original escrito em letras maiúsculas (ok). 
+    número de vogais (ok), número de consoantes (ok), palavra que apareceu mais 
+    vezes no arquivo (ok), vogal mais frequente (ok), consoantes mais frequente (ok).
+    Além disso, para cada arquivo do diretório, o programa deverá gerar um novo arquivo,
+    contendo o conteúdo do arquivo original escrito em letras maiúsculas (ok). 
 */
 
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Enumeration;
 using System.Linq;
-using System.Text;
 using System.Threading;
 
 namespace ArquivoComThreads
@@ -26,13 +25,17 @@ namespace ArquivoComThreads
             // pasta para os arquivos com maiúsculas (evita que eles interfiram quando rodamos o programa novamente)
             string diretorio2 = diretorio1 + @"Upper\";
             
+            // cria diretório para guardar os arquivos com maiúsculas
             if (!Directory.Exists(diretorio2))
             {
                 Directory.CreateDirectory(diretorio2);
             }
            
+            // lê o nome dos arquivos de texto do diretório
             string[] arquivos = Directory.GetFiles(diretorio1, "*.txt");
+            // criar um vetor de strings para guardar o texto de cada arquivo
             string[] textos = new string[arquivos.Length];
+            // e prepara um vetor para guardar os arquivos modificados
             string[] nomeArquivosUpper = new string[arquivos.Length];
 
             // lendo o texto de cada arquivo e criando os arquivos para a versão com as maiúsculas
@@ -47,6 +50,7 @@ namespace ArquivoComThreads
             Thread[] threads = new Thread[arquivos.Length];
 
             // usamos dicionários para guardar vogais, consoantes e palavras
+            // se a letra não é vogal, guardamos no dicionário de consoantes
             var vogaisDict = new Dictionary<char, int>()
             {
                 ['A'] = 0, ['E'] = 0, ['I'] = 0, ['O'] = 0, ['U'] = 0
@@ -54,34 +58,29 @@ namespace ArquivoComThreads
             var consoantesDict = new Dictionary<char, int>();
             var palavrasDict = new Dictionary<string, int>();
 
-            // para separar as palavras
+            // caracteres normelmente utlizados para separar as palavras
             char[] separadores = { ' ', ',', '.', ':', '!', '?', '\t', '\n', '\r' };
-
-            // variável utilizada para armazenar o texto separado em palavras
-            string[] stringAux;
 
             // a ideia é utilizar as threads para preencher os dicionários, depois fazemos os cálculos
             for (int i = 0; i < arquivos.Length; i++)
             {
                 // cada thread trabalha com o texto de um arquivo
                 threads[i] = new Thread(() => 
-                {   
-                    stringAux = textos[i].Split(separadores);
-                    for (int j = 0; j < stringAux.Length; j++)
+                {
+                    // percorremos as palavras e internamente as letras
+                    foreach (var palavra in textos[i].Split(separadores))
                     {
-                        ContaPalavras(palavrasDict, stringAux[j]);
-                        
-                        foreach (var caractere in stringAux[j])
-                        {   
+                        ContaPalavras(palavrasDict, palavra);
+
+                        foreach (var caractere in palavra)
+                        {
                             ContaLetras(vogaisDict, consoantesDict, caractere);
                         }
                     }
 
                     // criando e gravando os arquivos com maiúsculas
                     string arquivo = diretorio2 + nomeArquivosUpper[i];
-                    // Console.WriteLine(arquivo);
                     File.WriteAllText(arquivo, textos[i]);
-
                 });
                 threads[i].Start();
                 threads[i].Join();
@@ -94,8 +93,8 @@ namespace ArquivoComThreads
 
         static void ContaPalavras(Dictionary<string, int> palavrasDict, string palavra)
         {
-            // aqui contamos as palavras - caso ela não esteja no dicionário 
-            // é acrescida como chave o valor inicial definido como 1 - mesma ideia para os caractes
+            // aqui contamos as palavras - caso ela não esteja no dicionário, 
+            // é acrescida como chave e o valor inicial definido como 1 - mesma ideia para os caracteres
             if (palavrasDict.ContainsKey(palavra))
             {
                 palavrasDict[palavra]++;
@@ -106,11 +105,14 @@ namespace ArquivoComThreads
             }
         }
 
-        static void ContaLetras(Dictionary<char, int> vogaisDict, Dictionary<char, int> consoantesDict, char caractere)
+        static void ContaLetras(Dictionary<char, int> vogaisDict,
+                                Dictionary<char, int> consoantesDict,
+                                char caractere)
         {
-            // caso o caractere esteja contido no dicionário de vogais acrescentamos um no campo com a chave equivalente
-            // caso não esteja verificamos se está no intervalo entre 'a' e 'z'
-            // não precisamos nos preocupar no else se é vogal ou não porque já teria entrado no if inicial
+            // caso o caractere esteja contido no dicionário de vogais acrescentamos
+            // um no campo com a chave equivalente caso não esteja verificamos se está
+            // no intervalo entre 'a' e 'z' não precisamos nos preocupar no 'else' se é
+            // vogal ou não porque já teria entrado no 'if' inicial
             if (vogaisDict.ContainsKey(caractere))
             {
                 vogaisDict[caractere]++;

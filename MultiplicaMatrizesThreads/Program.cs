@@ -1,9 +1,9 @@
 ﻿/*
-    Faça um programa que multiplique duas matrizes A e B,
-    cujos dimensões são MxN e NxP, onde M pode ou não ser igual a P. (ok)
-    O tamanho das matrizes (ok) e o número de threads (ok) devem ser informados pelo usuário.
-    Os valores das matrizes devem ser gerados de forma aleatória (ok)  pelo programa.
-    O programa deverá imprimir na tela as matrizes A e B bem como o resultado da sua multiplicação. (ok)
+    Faça um programa que multiplique duas matrizes A e B, cujas dimensões são
+    MxN e NxP, onde M pode ou não ser igual a P. (ok) O tamanho das  matrizes (ok)
+    e o número de threads (ok) devem ser informados pelo usuário. Os valores das
+    matrizes devem ser gerados de forma aleatória (ok) pelo programa. O programa 
+    deverá imprimir na tela as matrizes A e B bem como o resultado da sua multiplicação. (ok)
  */
 
 using System;
@@ -18,7 +18,7 @@ namespace MatrizesComThreads
             Console.Write("Número de linhas da matriz A: ");
             int linA = int.Parse(Console.ReadLine());
 
-            Console.Write("\nNúmero de colunas da matriz A. Este valor também será o número de linhas da mastriz B: ");
+            Console.Write("\nNúmero de colunas da matriz A. Este valor também será o número de linhas da matriz B: ");
             int colALinB = int.Parse(Console.ReadLine());
 
             Console.Write("\nNúmero de linhas da colunas da matriz B: ");
@@ -30,7 +30,7 @@ namespace MatrizesComThreads
             var matC = new Matrix(matA.linha, matB.coluna, 'C');
 
             Random rnd = new Random();
-            // necessário passar o random para o scruct, não é possível criar a variável dentro dele
+            
             matA.PreencheMatriz(matA, rnd);
             matB.PreencheMatriz(matB, rnd);
 
@@ -52,7 +52,9 @@ namespace MatrizesComThreads
 
             int inicio, fim, x = 0;
 
-            // criamos threads que fazem a multiplicação de uma linha por uma coluna (varia conforme o número de threads)
+            // criamos threads que fazem a multiplicação de linhas por colunas de acordo com o número de threads
+            // exemplo: se temos 6 linhas na matriz A e 3 threads, cada thread fará a operção de duas linhas
+            // olhando a função de multiplicação fica mais fácil de entender
             for (int i = 0; i < matA.linha; i += (matA.linha / numThreads))
             {                
                 inicio = limites[x];
