@@ -58,7 +58,7 @@ namespace ArquivoComThreads
             var consoantesDict = new Dictionary<char, int>();
             var palavrasDict = new Dictionary<string, int>();
 
-            // caracteres normelmente utlizados para separar as palavras
+            // caracteres normelmente utilizados para separar as palavras
             char[] separadores = { ' ', ',', '.', ':', '!', '?', '\t', '\n', '\r' };
 
             // a ideia é utilizar as threads para preencher os dicionários, depois fazemos os cálculos
@@ -85,7 +85,7 @@ namespace ArquivoComThreads
                 threads[i].Start();
                 threads[i].Join();
             }                      
-
+            
             VogalMaisRepetida(vogaisDict);
             ConsoanteMaisRepetida(consoantesDict);
             PalavraMaisRepetida(palavrasDict);
