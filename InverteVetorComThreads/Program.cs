@@ -70,7 +70,9 @@ namespace InverteVetorComThreads
             Console.Write("\nVetor Original: ");
             MostraVetor(v1);
             Console.Write("\nVetor Invertido: ");
-            MostraVetor(v2);            
+            MostraVetor(v2);
+            // Array.Reverse(v2);
+            // MostraVetor(v2);
         }
 
         private static void PreencheVetor(int[] v1, Random rnd)
@@ -87,10 +89,9 @@ namespace InverteVetorComThreads
             // Console.WriteLine($"\nThread={Thread.CurrentThread.ManagedThreadId}\n");
             int ajuste = 0;
             // o cálculo para acertar a posição do v2 precisou ser modificado
-            // acredito que usando a variável 'início' do que 'x' fica mais claro para entender
             for (int x = inicio; x < fim; x++)
             {
-                v2[v2.Length - inicio - ajuste - 1] = v1[x];
+                v2[v2.Length - x - 1] = v1[x];
                 ajuste++;
             }
         }

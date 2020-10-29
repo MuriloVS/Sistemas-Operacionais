@@ -34,12 +34,14 @@ namespace MatrizesComThreads
             matA.PreencheMatriz(matA, rnd);
             matB.PreencheMatriz(matB, rnd);
 
-            int numThreads;
-            do
+            Console.Write("\nNúmero de Threads: ");
+            int numThreads = int.Parse(Console.ReadLine());
+
+            // tratando uma condição que não faria sentido
+            if (numThreads > matA.linha)
             {
-                Console.Write("\nNúmero de Threads (deve ser  múltiplo do número de linhas da matriz A): ");
-                numThreads = int.Parse(Console.ReadLine());
-            } while (linA % numThreads != 0);
+                numThreads = matA.linha;
+            }
 
             Thread[] threads = new Thread[numThreads];           
 
@@ -50,21 +52,30 @@ namespace MatrizesComThreads
                 limites[i] = matA.linha / numThreads * i;
             }
 
+            // tratando o caso em que o número de threads não é múltiplo no número de linhas de 'A'
+            limites[numThreads] += matA.linha % numThreads;
             int inicio, fim, x = 0;
 
             // criamos threads que fazem a multiplicação de linhas por colunas de acordo com o número de threads
             // exemplo: se temos 6 linhas na matriz A e 3 threads, cada thread fará a operção de duas linhas
             // olhando a função de multiplicação fica mais fácil de entender
             for (int i = 0; i < matA.linha; i += (matA.linha / numThreads))
-            {                
+            {
                 inicio = limites[x];
-                fim = limites[x + 1];
+                fim = limites[x + 1];                
 
                 threads[x] = new Thread(()=> MultiplicaMatriz(matA, matB, matC, inicio, fim));
                 threads[x].Start();
                 threads[x].Join();
 
                 x++;
+
+                // necessário para evitar que o índice ultrapasse o limite do vetor
+                // essa correção é para os casos em que mat.Linha/numThreds for diferente de zero
+                if (x == numThreads)
+                {
+                    break;
+                }
             }
 
             matA.MostraMatriz();
@@ -85,7 +96,6 @@ namespace MatrizesComThreads
                 }
             }
         }
-
 
         public struct Matrix
         {
