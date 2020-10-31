@@ -19,7 +19,7 @@ namespace ArquivoComThreads
     {
         static void Main(string[] args)
         {
-            // pasta criada com alguns arquivos txt e textos de alguns sites neles
+            // pasta criada manulamente com alguns arquivos txt e textos de alguns sites dentro deles
             string diretorio1 = @"c:\temp\";
 
             // pasta para os arquivos com maiúsculas (evita que eles interfiram quando rodamos o programa novamente)
@@ -33,7 +33,14 @@ namespace ArquivoComThreads
            
             // lê o nome dos arquivos de texto do diretório
             string[] arquivos = Directory.GetFiles(diretorio1, "*.txt");
-            // criar um vetor de strings para guardar o texto de cada arquivo
+
+            if (arquivos.Length == 0)
+            {
+                Console.WriteLine("Nenhum arquivo .txt encontrado, finalizando o programa.");
+                return;
+            }
+
+            // cria um vetor de strings para guardar o texto de cada arquivo
             string[] textos = new string[arquivos.Length];
             // e prepara um vetor para guardar os arquivos modificados
             string[] nomeArquivosUpper = new string[arquivos.Length];

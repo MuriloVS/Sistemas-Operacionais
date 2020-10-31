@@ -17,18 +17,30 @@ namespace InverteVetorComThreads
     {
         static void Main(string[] args)
         {
-            Console.Write("Tamanho do vetor: ");
-            int tamanho = int.Parse(Console.ReadLine());
+            int tamanho;
+            string entrada;
+
+            do
+            {
+                Console.Write("Tamanho do vetor: ");
+                entrada = Console.ReadLine();
+            } while (!int.TryParse(entrada, out tamanho) || tamanho <= 0);
+
+            Console.WriteLine();
 
             int[] v1 = new int[tamanho];
             int[] v2 = new int[tamanho];
 
             Random rnd = new Random();
 
-            PreencheVetor(v1, rnd);            
+            PreencheVetor(v1, rnd);
 
-            Console.Write("\nInforme o número de threads: ");
-            int numThreads = int.Parse(Console.ReadLine());
+            int numThreads;
+            do
+            {
+                Console.Write("Informe o número de threads: ");
+                entrada = Console.ReadLine();
+            } while (!int.TryParse(entrada, out numThreads) || numThreads <= 0);
             
             // tratando um caso que não faria sentido
             if (numThreads > tamanho)

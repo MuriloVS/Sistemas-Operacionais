@@ -7,6 +7,7 @@
  */
 
 using System;
+using System.Runtime.CompilerServices;
 using System.Threading;
 
 namespace MatrizesComThreads
@@ -15,14 +16,33 @@ namespace MatrizesComThreads
     {
         static void Main(string[] args)
         {
-            Console.Write("Número de linhas da matriz A: ");
-            int linA = int.Parse(Console.ReadLine());
+            string entrada;
 
-            Console.Write("\nNúmero de colunas da matriz A. Este valor também será o número de linhas da matriz B: ");
-            int colALinB = int.Parse(Console.ReadLine());
+            int linA;
+            do
+            {
+                Console.Write("Número de linhas da matriz A: ");
+                entrada = Console.ReadLine();
+            } while (!int.TryParse(entrada, out linA) || linA <= 0);
 
-            Console.Write("\nNúmero de linhas da colunas da matriz B: ");
-            int colB = int.Parse(Console.ReadLine());
+            Console.WriteLine();
+
+            int colALinB;
+            do
+            {
+                Console.Write("Número de colunas da matriz A. Este valor também será o número de linhas da matriz B: ");
+                entrada = Console.ReadLine();
+            } while (!int.TryParse(entrada, out colALinB) || colALinB <= 0);
+
+            Console.WriteLine();
+
+            int colB;
+            do
+            {
+                Console.Write("Número de linhas da colunas da matriz B: ");
+                entrada = Console.ReadLine();
+            } while (!int.TryParse(entrada, out colB) || colB <= 0);
+           
 
             // a matriz C vai guardar o resultado da multiplicação
             var matA = new Matrix(linA, colALinB, 'A');
@@ -34,8 +54,14 @@ namespace MatrizesComThreads
             matA.PreencheMatriz(matA, rnd);
             matB.PreencheMatriz(matB, rnd);
 
-            Console.Write("\nNúmero de Threads: ");
-            int numThreads = int.Parse(Console.ReadLine());
+            Console.WriteLine();
+
+            int numThreads;
+            do
+            {
+                Console.Write("Número de Threads: ");
+                entrada = Console.ReadLine();
+            } while (!int.TryParse(entrada, out numThreads) || numThreads <= 0);
 
             // tratando uma condição que não faria sentido
             if (numThreads > matA.linha)
@@ -78,6 +104,7 @@ namespace MatrizesComThreads
                 }
             }
 
+            Console.WriteLine();
             matA.MostraMatriz();
             matB.MostraMatriz();
             matC.MostraMatriz();           
