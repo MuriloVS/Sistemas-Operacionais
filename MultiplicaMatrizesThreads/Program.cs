@@ -7,7 +7,6 @@
  */
 
 using System;
-using System.Runtime.CompilerServices;
 using System.Threading;
 
 namespace MatrizesComThreads
@@ -47,7 +46,7 @@ namespace MatrizesComThreads
             // a matriz C vai guardar o resultado da multiplicação
             var matA = new Matrix(linA, colALinB, 'A');
             var matB = new Matrix(colALinB, colB, 'B');
-            var matC = new Matrix(matA.linha, matB.coluna, 'C');
+            var matC = new Matrix(matA.Linha, matB.Coluna, 'C');
 
             Random rnd = new Random();
             
@@ -64,9 +63,9 @@ namespace MatrizesComThreads
             } while (!int.TryParse(entrada, out numThreads) || numThreads <= 0);
 
             // tratando uma condição que não faria sentido
-            if (numThreads > matA.linha)
+            if (numThreads > matA.Linha)
             {
-                numThreads = matA.linha;
+                numThreads = matA.Linha;
             }
 
             Thread[] threads = new Thread[numThreads];           
@@ -75,17 +74,17 @@ namespace MatrizesComThreads
             int[] limites = new int[numThreads + 1];
             for (int i = 0; i < limites.Length; i++)
             {
-                limites[i] = matA.linha / numThreads * i;
+                limites[i] = matA.Linha / numThreads * i;
             }
 
             // tratando o caso em que o número de threads não é múltiplo no número de linhas de 'A'
-            limites[numThreads] += matA.linha % numThreads;
+            limites[numThreads] += matA.Linha % numThreads;
             int inicio, fim, x = 0;
 
             // criamos threads que fazem a multiplicação de linhas por colunas de acordo com o número de threads
             // exemplo: se temos 6 linhas na matriz A e 3 threads, cada thread fará a operção de duas linhas
             // olhando a função de multiplicação fica mais fácil de entender
-            for (int i = 0; i < matA.linha; i += (matA.linha / numThreads))
+            for (int i = 0; i < numThreads; i++)
             {
                 inicio = limites[x];
                 fim = limites[x + 1];                
@@ -95,13 +94,6 @@ namespace MatrizesComThreads
                 threads[x].Join();
 
                 x++;
-
-                // necessário para evitar que o índice ultrapasse o limite do vetor
-                // essa correção é para os casos em que mat.Linha/numThreds for diferente de zero
-                if (x == numThreads)
-                {
-                    break;
-                }
             }
 
             Console.WriteLine();
@@ -114,11 +106,11 @@ namespace MatrizesComThreads
         {
             for (int linha = inicio; linha < fim; linha++)
             {
-                for (int coluna = 0; coluna < B.coluna; coluna++)
+                for (int coluna = 0; coluna < B.Coluna; coluna++)
                 {
-                    for (int i = 0; i < A.coluna; i++)
+                    for (int i = 0; i < A.Coluna; i++)
                     {
-                        C.matriz[linha, coluna] += A.matriz[linha, i] * B.matriz[i, coluna];
+                        C.Matriz[linha, coluna] += A.Matriz[linha, i] * B.Matriz[i, coluna];
                     }
                 }
             }
@@ -129,25 +121,25 @@ namespace MatrizesComThreads
             // construtor deste scruct
             public Matrix(int linha, int coluna, char nome)
             {                
-                this.linha = linha;
-                this.coluna = coluna;
-                this.nome = nome;
-                matriz = new int[this.linha, this.coluna];
+                Linha = linha;
+                Coluna = coluna;
+                Nome = nome;
+                Matriz = new int[Linha, Coluna];
             }
 
-            public int linha;
-            public int coluna;
-            char nome;
-            public int[,] matriz;
+            public int Linha;
+            public int Coluna;
+            public char Nome;
+            public int[,] Matriz;
 
             public void MostraMatriz()
             {
-                Console.WriteLine($"{nome}");
-                for (int i = 0; i < linha; i++)
+                Console.WriteLine($"{ Nome }");
+                for (int i = 0; i < Linha; i++)
                 {
-                    for (int j = 0; j < coluna; j++)
+                    for (int j = 0; j < Coluna; j++)
                     {
-                        Console.Write($"{matriz[i, j]} ");
+                        Console.Write($"{ Matriz[i, j] } ");
                     }
                     Console.WriteLine();
                 }
@@ -156,11 +148,11 @@ namespace MatrizesComThreads
 
             public void PreencheMatriz(Matrix Z, Random rnd)
             {
-                for (int i = 0; i < Z.linha; i++)
+                for (int i = 0; i < Z.Linha; i++)
                 {
-                    for (int j = 0; j < Z.coluna; j++)
+                    for (int j = 0; j < Z.Coluna; j++)
                     {
-                        Z.matriz[i, j] = rnd.Next(1, 10);
+                        Z.Matriz[i, j] = rnd.Next(1, 10);
                     }
                 }
             }
