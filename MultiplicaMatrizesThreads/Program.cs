@@ -125,12 +125,7 @@ namespace MatrizesComThreads
             // 0  2  5  8 11  13  15  20 (terceira iteração)
             // 0  2  5  8 11  14  16  20 (quarta iteração)
             // 0  2  5  8 11  14  17  20 (quinta iteração)
-            // no ínicio o inteverlo mínimo era 2 e o máximo era 8 - ao final temos invervalo mínimo 2 e máximo igual a 3
-            for (int i = 0; i < limite.Length; i++)
-            {
-                Console.Write(limite[i] + " ");
-            }
-            Console.WriteLine();
+            // no ínicio o inteverlo mínimo era 2 e o máximo era 8 - ao final temos invervalo mínimo 2 e máximo igual a 3            
             if (resto > 1)
             {
                 // aux é utilizada para que a cada iteração o 'for 'pare antes a cada iteração (terceiro elemento, quarto elemento etc.)
@@ -144,10 +139,6 @@ namespace MatrizesComThreads
                     resto--;
                     aux++;
                 }
-            }
-            for (int i = 0; i < limite.Length; i++)
-            {
-                Console.Write(limite[i] + " ");
             }
         }
 
