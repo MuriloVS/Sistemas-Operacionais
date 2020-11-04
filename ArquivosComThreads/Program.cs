@@ -137,7 +137,7 @@ namespace ArquivoComThreads
             }
         }
 
-        // stackoverflow hacks - não sei se valeu a pela, código ficou enxuto mas menos legível nessas funções
+        // stackoverflow hacks - não sei se valeu a pena, código ficou enxuto mas menos legível nessas funções
         static void VogalMaisRepetida(Dictionary<char, int> vogaisDict)
         {
             Console.WriteLine($"\nTotal de vogais: { vogaisDict.Sum(x => x.Value) }" +

@@ -48,19 +48,10 @@ namespace InverteVetorComThreads
                 numThreads = tamanho;
             }
 
-            // qual o tamanho de cada 'pedaço' do vetor original
-            int diferenca = tamanho / numThreads;
-
             // guardamos os limites (índices) dos vetores
             // esses valores são usados pelas threads
             int[] limite = new int[numThreads + 1];
-            for (int x = 0; x <= numThreads; x++)
-            {
-                limite[x] = diferenca * x;
-            }
-
-            // tratando o caso quando o número de threads não é múltiplo do tamanho do vetor
-            limite[numThreads] += tamanho % numThreads;
+            DefineLimites(limite, tamanho, numThreads);
 
             Thread[] threads = new Thread[numThreads];
             int inicio, fim;
@@ -85,6 +76,47 @@ namespace InverteVetorComThreads
             MostraVetor(v2);
             // Array.Reverse(v2);
             // MostraVetor(v2);
+        }
+
+        private static void DefineLimites(int[] limite, int tamanho, int numThreads)
+        {
+            // qual o tamanho de cada 'pedaço' do vetor original
+            // correções são necessárias caso os pedaçõs tenham tamanho diferente
+            int diferenca = tamanho / numThreads;
+
+            for (int x = 0; x < limite.Length; x++)
+            {
+                limite[x] = diferenca * x;
+            }
+
+            // tratando o caso quando o número de threads não é múltiplo do tamanho do vetor
+            int resto = tamanho % numThreads;
+            limite[limite.Length - 1] += resto;
+
+            Console.WriteLine("Antes dos ajustes");
+            MostraVetor(limite);
+
+            // a lógica é começar do penúltimo indíce, aquele com maior distância até o próximo
+            // acrescentamos um a cada índice, até o segundo elemento na primeira iteração
+            // na segunda iteração ele para no terceiro elemento e assim por diante
+            // dessa maneira cada thread trabalha com um intervalo parecido
+            // caso o resto seja um não porque fazer o ajuste
+            if (resto > 1)
+            {
+                // aux é utilizada para que a cada iteração o for pare antes (segundo elemento, terceiro elemento etc.)
+                int aux = 0;
+                while (resto > 1)
+                {
+                    for (int i = limite.Length - 2; i > (1 + aux); i--)
+                    {
+                        limite[i] += 1;
+                    }
+                    resto--;
+                    aux++;
+                }
+            }
+            Console.WriteLine("Após os ajustes");
+            MostraVetor(limite);
         }
 
         private static void PreencheVetor(int[] v1, Random rnd)

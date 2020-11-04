@@ -72,13 +72,8 @@ namespace MatrizesComThreads
 
             // assim como no exercício do vetor eu preferi guardar os intervalos antes para facilitar a legibilidade
             int[] limites = new int[numThreads + 1];
-            for (int i = 0; i < limites.Length; i++)
-            {
-                limites[i] = matA.Linha / numThreads * i;
-            }
-
-            // tratando o caso em que o número de threads não é múltiplo no número de linhas de 'A'
-            limites[numThreads] += matA.Linha % numThreads;
+            DefineLimites(limites, matA.Linha, numThreads);            
+           
             int inicio, fim, x = 0;
 
             // criamos threads que fazem a multiplicação de linhas por colunas de acordo com o número de threads
@@ -86,12 +81,12 @@ namespace MatrizesComThreads
             // olhando a função de multiplicação fica mais fácil de entender
             for (int i = 0; i < numThreads; i++)
             {
-                inicio = limites[x];
-                fim = limites[x + 1];                
+                inicio = limites[i];
+                fim = limites[i + 1];                
 
-                threads[x] = new Thread(()=> MultiplicaMatriz(matA, matB, matC, inicio, fim));
-                threads[x].Start();
-                threads[x].Join();
+                threads[i] = new Thread(()=> MultiplicaMatriz(matA, matB, matC, inicio, fim));
+                threads[i].Start();
+                threads[i].Join();
 
                 x++;
             }
@@ -100,6 +95,42 @@ namespace MatrizesComThreads
             matA.MostraMatriz();
             matB.MostraMatriz();
             matC.MostraMatriz();           
+        }
+
+        private static void DefineLimites(int[] limite, int tamanho, int numThreads)
+        {
+            // qual o tamanho de cada 'pedaço' do vetor original
+            // correções são necessárias caso os pedaçõs tenham tamanho diferente
+            int diferenca = tamanho / numThreads;
+
+            for (int x = 0; x < limite.Length; x++)
+            {
+                limite[x] = diferenca * x;
+            }
+
+            // tratando o caso quando o número de threads não é múltiplo do tamanho do vetor
+            int resto = tamanho % numThreads;
+            limite[limite.Length - 1] += resto;
+
+            // a lógica é começar do penúltimo indíce, aquele com maior distância até o próximo
+            // acrescentamos um a cada índice, até o segundo elemento na primeira iteração
+            // na segunda iteração ele para no terceiro elemento e assim por diante
+            // dessa maneira cada thread trabalha com um intervalo parecido
+            // caso o resto seja um não porque fazer o ajuste
+            if (resto > 1)
+            {
+                // aux é utilizada para que a cada iteração o for pare antes (segundo elemento, terceiro elemento etc.)
+                int aux = 0;
+                while (resto > 1)
+                {
+                    for (int i = limite.Length - 2; i > (1 + aux); i--)
+                    {
+                        limite[i] += 1;
+                    }
+                    resto--;
+                    aux++;
+                }
+            }
         }
 
         public static void MultiplicaMatriz(Matrix A, Matrix B, Matrix C, int inicio, int fim)
