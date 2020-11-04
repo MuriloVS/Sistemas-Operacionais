@@ -81,7 +81,7 @@ namespace InverteVetorComThreads
         private static void DefineLimites(int[] limite, int tamanho, int numThreads)
         {
             // qual o tamanho de cada 'pedaço' do vetor original
-            // correções são necessárias caso os pedaçõs tenham tamanho diferente
+            // correções são necessárias caso a divisão não tenha resto zero
             int diferenca = tamanho / numThreads;
 
             for (int x = 0; x < limite.Length; x++)
@@ -90,6 +90,7 @@ namespace InverteVetorComThreads
             }
 
             // tratando o caso quando o número de threads não é múltiplo do tamanho do vetor
+            // a última posição do vetor fica maior que as outras neste caso, mas garante que tudo será executado
             int resto = tamanho % numThreads;
             limite[limite.Length - 1] += resto;
 
@@ -97,13 +98,21 @@ namespace InverteVetorComThreads
             MostraVetor(limite);
 
             // a lógica é começar do penúltimo indíce, aquele com maior distância até o próximo
-            // acrescentamos um a cada índice, até o segundo elemento na primeira iteração
-            // na segunda iteração ele para no terceiro elemento e assim por diante
+            // acrescentamos um a cada índice, até o terceiro elemento na primeira iteração
+            // na segunda iteração ele para no quarto elemento e assim por diante
             // dessa maneira cada thread trabalha com um intervalo parecido
-            // caso o resto seja um não porque fazer o ajuste
+            // caso o resto seja um, não há porque fazer o ajuste
+            // exemplo: vetor com a tamanho 20 e 7 threads - resto 6, cinco iterações
+            // 0  2  4  6  8  10  12  20 (original)
+            // 0  2  5  7  9  11  13  20 (primeira iteração)
+            // 0  2  5  8 10  12  14  20 (segunda iteração)
+            // 0  2  5  8 11  13  15  20 (terceira iteração)
+            // 0  2  5  8 11  14  16  20 (quarta iteração)
+            // 0  2  5  8 11  14  17  20 (quinta iteração)
+            // no ínicio o inteverlo mínimo era 2 e o máximo era 8 - ao final temos invervalo mínimo 2 e máximo igual a 3
             if (resto > 1)
             {
-                // aux é utilizada para que a cada iteração o for pare antes (segundo elemento, terceiro elemento etc.)
+                // aux é utilizada para que a cada iteração o 'for 'pare antes a cada iteração (terceiro elemento, quarto elemento etc.)
                 int aux = 0;
                 while (resto > 1)
                 {
