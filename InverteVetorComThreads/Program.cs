@@ -92,7 +92,7 @@ namespace InverteVetorComThreads
             // tratando o caso quando o número de threads não é múltiplo do tamanho do vetor
             // a última posição do vetor fica maior que as outras neste caso, mas garante que tudo será executado
             int resto = tamanho % numThreads;
-            limite[limite.Length - 1] += resto;
+            limite[^1] += resto;
 
             Console.WriteLine("Antes dos ajustes");
             MostraVetor(limite);
