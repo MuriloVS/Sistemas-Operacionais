@@ -7,10 +7,10 @@
 
   Crie diversas threads para simular sequências de operações em paralelo e, aleatoriamente,
   defina qual conta receberá a operação, o tipo de operação (crédito ou débito), e o valor
-  da operação. Realize simulações com diferentes números de threads. Após, assuma que existe
-  uma nova operação que realiza a consulta do saldo. A principal diferença para esta operação
+  da operação. (ok) Realize simulações com diferentes números de threads. (ok) Após, assuma que existe
+  uma nova operação que realiza a consulta do saldo. (ok) A principal diferença para esta operação
   é que múltiplas threads podem consultar o saldo de uma conta simultaneamente, desde que
-  nenhuma outra thread esteja realizando uma operação de crédito ou débito. Operações de
+  nenhuma outra thread esteja realizando uma operação de crédito ou débito. (ok?) Operações de
   débito e crédito continuam precisando de acesso exclusivo aos registros da conta para
   executarem adequadamente. 
 */
@@ -25,17 +25,22 @@ namespace ConcorrenciaSincronizacao
         static void Main(string[] args)
         {
             Random rnd = new Random();
+
+            // somente um cliente foi criado para que fosse mais fácil sobrecarregar as operações das threads
+            // o saldo inicial na conta do cliente fica entre 100 e 1000
             Cliente cliente = new Cliente(1, rnd.Next(100, 1001));
 
             Console.WriteLine($"Saldo inicial na conta: ");
             cliente.MostraSaldo();
             Console.WriteLine();
 
+            // o número de threads varia a cada vez que o programa é executado
             int numThreads = Environment.ProcessorCount + rnd.Next(0, 11);
             Thread[] threads = new Thread[numThreads];
 
             for (int i = 0; i < numThreads; i++)
             {
+                // gera 0 ou 1
                 int op = rnd.Next(2);
                 
                 if (op == 0)
@@ -50,11 +55,12 @@ namespace ConcorrenciaSincronizacao
                 }
             }
 
+            // garantindo que as threads completem antes de finalizar o programa
             foreach (var thread in threads)
             {
                 thread.Join();
             }
-
+            
             Console.WriteLine("\nSaldo final na conta: ");
             cliente.MostraSaldo();
         }    
@@ -64,7 +70,7 @@ namespace ConcorrenciaSincronizacao
     {
         public int Identificador { get; set; }
         public int Saldo { get; set; }
-        private Mutex _mut = new Mutex();
+        private readonly Mutex _mut = new Mutex();
 
         public Cliente(int identificador, int saldo)
         {
@@ -99,9 +105,7 @@ namespace ConcorrenciaSincronizacao
             try
             {
                 Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} solicitando acesso.");
-
                 _mut.WaitOne();
-
                 Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} obteve acesso. Realizando saque de R$ {valor},00.");
 
                 if ((Saldo - valor) >= 0)
