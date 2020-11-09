@@ -26,12 +26,38 @@ namespace ConcorrenciaSincronizacao
         {
             Random rnd = new Random();
             Cliente cliente = new Cliente(1, rnd.Next(100, 1001));
+
+            Console.WriteLine($"Saldo inicial na conta: ");
             cliente.MostraSaldo();
-            cliente.Deposita(100);
+            Console.WriteLine();
+
+            int numThreads = Environment.ProcessorCount + rnd.Next(0, 11);
+            Thread[] threads = new Thread[numThreads];
+
+            for (int i = 0; i < numThreads; i++)
+            {
+                int op = rnd.Next(2);
+                
+                if (op == 0)
+                {                    
+                    threads[i] = new Thread(() => cliente.Saque(rnd.Next(200)));
+                    threads[i].Start();
+                }
+                else
+                {
+                    threads[i] = new Thread(() => cliente.Deposito(rnd.Next(200)));
+                    threads[i].Start();
+                }
+            }
+
+            foreach (var thread in threads)
+            {
+                thread.Join();
+            }
+
+            Console.WriteLine("\nSaldo final na conta: ");
             cliente.MostraSaldo();
-            cliente.Saque(500);
-            cliente.MostraSaldo();
-        }
+        }    
     }
 
     class Cliente
@@ -51,24 +77,48 @@ namespace ConcorrenciaSincronizacao
             Console.WriteLine($"Saldo = R$ { Saldo },00");
         }
 
-        public void Deposita(int valor)
+        public void Deposito(int valor)
         {
-            _mut.WaitOne();
-            Saldo += valor;
-            _mut.ReleaseMutex();
+            try
+            {
+                Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} solicitando acesso.");
+                _mut.WaitOne();
+                Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} obteve acesso. Realizando depósito de R$ {valor},00.");
+                Saldo += valor;
+            }
+            finally
+            {
+                MostraSaldo();
+                Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} finalizou a operação.");                
+                _mut.ReleaseMutex();                
+            }            
         }
 
         public void Saque(int valor)
         {
-            _mut.WaitOne();
-            if ((Saldo - valor) >= 0M)
+            try
             {
-                Saldo -= valor;
-                _mut.ReleaseMutex();
-                return;
-            }            
+                Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} solicitando acesso.");
 
-            Console.WriteLine("ERRO! Saldo insuficiente!");
+                _mut.WaitOne();
+
+                Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} obteve acesso. Realizando saque de R$ {valor},00.");
+
+                if ((Saldo - valor) >= 0)
+                {                    
+                    Saldo -= valor;                   
+                }
+                else
+                {
+                    Console.WriteLine("ERRO! Saldo insuficiente, operação cancelada!");
+                }
+            }
+            finally
+            {
+                MostraSaldo();
+                Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} finalizou a operação.");                
+                _mut.ReleaseMutex();                
+            }            
         }
     }
 }
