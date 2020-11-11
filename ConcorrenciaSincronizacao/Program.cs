@@ -27,8 +27,8 @@ namespace ConcorrenciaSincronizacao
             Random rnd = new Random();
 
             // somente um cliente foi criado para que fosse mais fácil sobrecarregar as operações das threads
-            // o saldo inicial na conta do cliente fica entre 100 e 1000
-            Cliente cliente = new Cliente(1, rnd.Next(100, 1001));
+            // o saldo inicial na conta do cliente fica entre 100 e 500
+            Cliente cliente = new Cliente(1, rnd.Next(100, 501));
 
             Console.WriteLine($"Saldo inicial na conta: ");
             cliente.MostraSaldo();
@@ -70,7 +70,7 @@ namespace ConcorrenciaSincronizacao
     {
         public int Identificador { get; set; }
         public int Saldo { get; set; }
-        private readonly Mutex _mut = new Mutex();
+        private readonly Mutex _mut = new Mutex(false, "Teste");
 
         public Cliente(int identificador, int saldo)
         {
@@ -91,13 +91,13 @@ namespace ConcorrenciaSincronizacao
                 _mut.WaitOne();
                 Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} obteve acesso. Realizando depósito de R$ {valor},00.");
                 Saldo += valor;
+                MostraSaldo();
             }
             finally
-            {
-                MostraSaldo();
+            {                
                 Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} finalizou a operação.");                
                 _mut.ReleaseMutex();                
-            }            
+            }
         }
 
         public void Saque(int valor)
@@ -109,20 +109,20 @@ namespace ConcorrenciaSincronizacao
                 Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} obteve acesso. Realizando saque de R$ {valor},00.");
 
                 if ((Saldo - valor) >= 0)
-                {                    
-                    Saldo -= valor;                   
+                {
+                    Saldo -= valor;
+                    MostraSaldo();
                 }
                 else
                 {
-                    Console.WriteLine("ERRO! Saldo insuficiente, operação cancelada!");
+                    Console.WriteLine("ERRO! Saldo insuficiente, operação cancelada.");
                 }
             }
             finally
-            {
-                MostraSaldo();
+            {  
                 Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} finalizou a operação.");                
                 _mut.ReleaseMutex();                
-            }            
+            }
         }
     }
 }
