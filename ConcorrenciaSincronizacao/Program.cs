@@ -27,30 +27,39 @@ namespace ConcorrenciaSincronizacao
             Random rnd = new Random();
 
             // somente um cliente foi criado para que fosse mais fácil sobrecarregar as operações das threads
-            // o saldo inicial na conta do cliente fica entre 100 e 500
-            Cliente cliente = new Cliente(1, rnd.Next(100, 501));
+            // o saldo inicial na conta do cliente fica entre 100 e 400
+            Cliente cliente = new Cliente(1, rnd.Next(100, 401));
 
             Console.WriteLine($"Saldo inicial na conta: ");
             cliente.MostraSaldo();
             Console.WriteLine();
 
-            // o número de threads varia a cada vez que o programa é executado
-            int numThreads = Environment.ProcessorCount + rnd.Next(0, 11);
+            // o número de threads varia cada vez que o programa é executado
+            int numThreads = Environment.ProcessorCount + rnd.Next(0, 21);
             Thread[] threads = new Thread[numThreads];
+
 
             for (int i = 0; i < numThreads; i++)
             {
-                // gera 0 ou 1
-                int op = rnd.Next(2);
-                
+                // gera números entre 0 e 5 - a ideia é que ocorram mais consultas de consulta ao saldo
+                // do que saque/depósito para testar a lógica do método de mostrar o saldo
+                int op = rnd.Next(6);
+
                 if (op == 0)
-                {                    
-                    threads[i] = new Thread(() => cliente.Saque(rnd.Next(200)));
+                {
+                    threads[i] = new Thread(() => cliente.Saque(rnd.Next(1, 200)));                    
                     threads[i].Start();
+                    cliente.ControleAcesso = true;
+                }
+                else if (op == 1)
+                {
+                    threads[i] = new Thread(() => cliente.Deposito(rnd.Next(1, 200)));                    
+                    threads[i].Start();
+                    cliente.ControleAcesso = true;
                 }
                 else
                 {
-                    threads[i] = new Thread(() => cliente.Deposito(rnd.Next(200)));
+                    threads[i] = new Thread(() => cliente.MostraSaldo());
                     threads[i].Start();
                 }
             }
@@ -60,10 +69,10 @@ namespace ConcorrenciaSincronizacao
             {
                 thread.Join();
             }
-            
+
             Console.WriteLine("\nSaldo final na conta: ");
             cliente.MostraSaldo();
-        }    
+        }
     }
 
     class Cliente
@@ -71,6 +80,7 @@ namespace ConcorrenciaSincronizacao
         public int Identificador { get; set; }
         public int Saldo { get; set; }
         private readonly Mutex _mut = new Mutex(false, "Teste");
+        public bool ControleAcesso { get; set; } // controle do acesso ao método para mostrar o saldo
 
         public Cliente(int identificador, int saldo)
         {
@@ -80,38 +90,60 @@ namespace ConcorrenciaSincronizacao
 
         public void MostraSaldo()
         {
-            Console.WriteLine($"Saldo = R$ { Saldo },00");
+            // se for verdadeiro, tentamos colocar na fila
+            if (ControleAcesso)
+            {
+                try
+                {
+                    Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} solicitando acesso para mostrar saldo.");
+                    _mut.WaitOne();
+                    Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} obteve acesso." +
+                        $" Mostrando o saldo da conta. Saldo = R$ { Saldo },00." +
+                        $"\nThread {Thread.CurrentThread.ManagedThreadId} finalizou a operação.");
+                }
+                finally
+                {
+                    _mut.ReleaseMutex();
+                }
+            }
+            else
+            {
+                Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} mostrando o saldo da conta." +
+                    $" Saldo = R$ { Saldo },00." +
+                    $"\nThread {Thread.CurrentThread.ManagedThreadId} finalizou a operação.");
+            }
         }
 
         public void Deposito(int valor)
-        {
+        {;
             try
-            {
-                Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} solicitando acesso.");
+            {                
+                Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} solicitando acesso para realizar um depósito.");
                 _mut.WaitOne();
                 Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} obteve acesso. Realizando depósito de R$ {valor},00.");
                 Saldo += valor;
-                MostraSaldo();
             }
             finally
-            {                
-                Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} finalizou a operação.");                
-                _mut.ReleaseMutex();                
+            {
+                ControleAcesso = false;
+                MostraSaldo();
+                //Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} finalizou a operação.");
+                _mut.ReleaseMutex();
+
             }
         }
 
         public void Saque(int valor)
         {
             try
-            {
-                Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} solicitando acesso.");
+            {                
+                Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} solicitando acesso pare realizar um saque.");
                 _mut.WaitOne();
                 Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} obteve acesso. Realizando saque de R$ {valor},00.");
 
                 if ((Saldo - valor) >= 0)
                 {
                     Saldo -= valor;
-                    MostraSaldo();
                 }
                 else
                 {
@@ -119,9 +151,11 @@ namespace ConcorrenciaSincronizacao
                 }
             }
             finally
-            {  
-                Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} finalizou a operação.");                
-                _mut.ReleaseMutex();                
+            {
+                ControleAcesso = false;
+                MostraSaldo();
+                //Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} finalizou a operação.");
+                _mut.ReleaseMutex();
             }
         }
     }
