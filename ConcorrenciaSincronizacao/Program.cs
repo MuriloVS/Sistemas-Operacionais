@@ -41,21 +41,19 @@ namespace ConcorrenciaSincronizacao
 
             for (int i = 0; i < numThreads; i++)
             {
-                // gera números entre 0 e 5 - a ideia é que ocorram mais consultas de consulta ao saldo
+                // gera números entre 0 e 4 - a ideia é que ocorram mais consultas  ao saldo
                 // do que saque/depósito para testar a lógica do método de mostrar o saldo
-                int op = rnd.Next(6);
+                int op = rnd.Next(5);
 
                 if (op == 0)
                 {
-                    threads[i] = new Thread(() => cliente.Saque(rnd.Next(1, 200)));                    
+                    threads[i] = new Thread(() => cliente.Saque(rnd.Next(1, 201)));
                     threads[i].Start();
-                    cliente.ControleAcesso = true;
                 }
                 else if (op == 1)
                 {
-                    threads[i] = new Thread(() => cliente.Deposito(rnd.Next(1, 200)));                    
+                    threads[i] = new Thread(() => cliente.Deposito(rnd.Next(1, 201)));                    
                     threads[i].Start();
-                    cliente.ControleAcesso = true;
                 }
                 else
                 {
@@ -80,7 +78,7 @@ namespace ConcorrenciaSincronizacao
         public int Identificador { get; set; }
         public int Saldo { get; set; }
         private readonly Mutex _mut = new Mutex(false, "Teste");
-        public bool ControleAcesso { get; set; } // controle do acesso ao método para mostrar o saldo
+        static bool ControleAcesso { get; set; } // controle do acesso ao método para mostrar o saldo
 
         public Cliente(int identificador, int saldo)
         {
@@ -98,7 +96,7 @@ namespace ConcorrenciaSincronizacao
                     Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} solicitando acesso para mostrar saldo.");
                     _mut.WaitOne();
                     Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} obteve acesso." +
-                        $" Mostrando o saldo da conta. Saldo = R$ { Saldo },00." +
+                        $" Mostrando o saldo da conta. Saldo = R$ { Saldo.ToString("N2") }" +
                         $"\nThread {Thread.CurrentThread.ManagedThreadId} finalizou a operação.");
                 }
                 finally
@@ -109,18 +107,20 @@ namespace ConcorrenciaSincronizacao
             else
             {
                 Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} mostrando o saldo da conta." +
-                    $" Saldo = R$ { Saldo },00." +
+                    $" Saldo = R$ { Saldo.ToString("N2") }." +
                     $"\nThread {Thread.CurrentThread.ManagedThreadId} finalizou a operação.");
             }
         }
 
         public void Deposito(int valor)
-        {;
+        {
+            ControleAcesso = true;
             try
             {                
                 Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} solicitando acesso para realizar um depósito.");
                 _mut.WaitOne();
-                Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} obteve acesso. Realizando depósito de R$ {valor},00.");
+                Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} obteve acesso." +
+                    $" Realizando depósito de R$ { valor.ToString("N2") }.");
                 Saldo += valor;
             }
             finally
@@ -135,11 +135,13 @@ namespace ConcorrenciaSincronizacao
 
         public void Saque(int valor)
         {
+            ControleAcesso = true;
             try
             {                
                 Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} solicitando acesso pare realizar um saque.");
                 _mut.WaitOne();
-                Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} obteve acesso. Realizando saque de R$ {valor},00.");
+                Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} obteve acesso. " +
+                    $"Realizando saque de R$ { valor.ToString("N2") }.");
 
                 if ((Saldo - valor) >= 0)
                 {
