@@ -16,6 +16,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace ConcorrenciaSincronizacao
@@ -41,9 +42,9 @@ namespace ConcorrenciaSincronizacao
 
             for (int i = 0; i < numThreads; i++)
             {
-                // gera números entre 0 e 4 - a ideia é que ocorram mais consultas  ao saldo
+                // gera números entre 0 e 5 - a ideia é que ocorram mais consultas  ao saldo
                 // do que saque/depósito para testar a lógica do método de mostrar o saldo
-                int op = rnd.Next(5);
+                int op = rnd.Next(6);
 
                 if (op == 0)
                 {
@@ -70,6 +71,7 @@ namespace ConcorrenciaSincronizacao
 
             Console.WriteLine("\nSaldo final na conta: ");
             cliente.MostraSaldo();
+            
         }
     }
 
@@ -78,7 +80,9 @@ namespace ConcorrenciaSincronizacao
         public int Identificador { get; set; }
         public int Saldo { get; set; }
         private readonly Mutex _mut = new Mutex(false, "Teste");
-        static bool ControleAcesso { get; set; } // controle do acesso ao método para mostrar o saldo
+        // controle do acesso ao método para mostrar o saldo
+        // quando a lista tem algum elemento é porque temos operação de saque/depósito/consulta aguardando
+        public List<int> Controle = new List<int>();
 
         public Cliente(int identificador, int saldo)
         {
@@ -88,12 +92,12 @@ namespace ConcorrenciaSincronizacao
 
         public void MostraSaldo()
         {
-            // se for verdadeiro, tentamos colocar na fila
-            if (ControleAcesso)
+            if (Controle.Count > 0)
             {
                 try
                 {
                     Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} solicitando acesso para mostrar saldo.");
+                    Controle.Add(Thread.CurrentThread.ManagedThreadId);
                     _mut.WaitOne();
                     Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} obteve acesso." +
                         $" Mostrando o saldo da conta. Saldo = R$ { Saldo.ToString("N2") }" +
@@ -101,6 +105,7 @@ namespace ConcorrenciaSincronizacao
                 }
                 finally
                 {
+                    Controle.Remove(Thread.CurrentThread.ManagedThreadId);
                     _mut.ReleaseMutex();
                 }
             }
@@ -114,7 +119,7 @@ namespace ConcorrenciaSincronizacao
 
         public void Deposito(int valor)
         {
-            ControleAcesso = true;
+            Controle.Add(Thread.CurrentThread.ManagedThreadId);
             try
             {                
                 Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} solicitando acesso para realizar um depósito.");
@@ -122,20 +127,19 @@ namespace ConcorrenciaSincronizacao
                 Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} obteve acesso." +
                     $" Realizando depósito de R$ { valor.ToString("N2") }.");
                 Saldo += valor;
+                Console.WriteLine($"Novo saldo = R$ { Saldo.ToString("N2") }");
             }
             finally
             {
-                ControleAcesso = false;
-                MostraSaldo();
-                //Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} finalizou a operação.");
+                Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} finalizou a operação.");
                 _mut.ReleaseMutex();
-
             }
+            Controle.Remove(Thread.CurrentThread.ManagedThreadId);
         }
 
         public void Saque(int valor)
         {
-            ControleAcesso = true;
+            Controle.Add(Thread.CurrentThread.ManagedThreadId);
             try
             {                
                 Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} solicitando acesso pare realizar um saque.");
@@ -146,6 +150,7 @@ namespace ConcorrenciaSincronizacao
                 if ((Saldo - valor) >= 0)
                 {
                     Saldo -= valor;
+                    Console.WriteLine($"Novo saldo = R$ { Saldo.ToString("N2") }");
                 }
                 else
                 {
@@ -154,11 +159,11 @@ namespace ConcorrenciaSincronizacao
             }
             finally
             {
-                ControleAcesso = false;
-                MostraSaldo();
-                //Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} finalizou a operação.");
+                Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} finalizou a operação.");
+                
                 _mut.ReleaseMutex();
             }
+            Controle.Remove(Thread.CurrentThread.ManagedThreadId);
         }
     }
 }
