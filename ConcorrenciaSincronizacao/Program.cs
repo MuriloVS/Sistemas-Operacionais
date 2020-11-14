@@ -42,9 +42,8 @@ namespace ConcorrenciaSincronizacao
 
             for (int i = 0; i < numThreads; i++)
             {
-                // gera números entre 0 e 5 - a ideia é que ocorram mais consultas  ao saldo
-                // do que saque/depósito para testar a lógica do método de mostrar o saldo
-                int op = rnd.Next(6);
+                // gera números entre 0 e 2               
+                int op = rnd.Next(3);
 
                 if (op == 0)
                 {
@@ -70,8 +69,7 @@ namespace ConcorrenciaSincronizacao
             }
 
             Console.WriteLine("\nSaldo final na conta: ");
-            cliente.MostraSaldo();
-            
+            cliente.MostraSaldo();            
         }
     }
 
@@ -82,6 +80,7 @@ namespace ConcorrenciaSincronizacao
         private readonly Mutex _mut = new Mutex(false, "Teste");
         // controle do acesso ao método para mostrar o saldo
         // quando a lista tem algum elemento é porque temos operação de saque/depósito/consulta aguardando
+        // o número da thread que inicioou a operação é adicionado no inicio e removido final das operações
         public List<int> Controle = new List<int>();
 
         public Cliente(int identificador, int saldo)
@@ -96,8 +95,8 @@ namespace ConcorrenciaSincronizacao
             {
                 try
                 {
-                    Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} solicitando acesso para mostrar saldo.");
                     Controle.Add(Thread.CurrentThread.ManagedThreadId);
+                    Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} solicitando acesso para mostrar saldo.");                    
                     _mut.WaitOne();
                     Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} obteve acesso." +
                         $" Mostrando o saldo da conta. Saldo = R$ { Saldo.ToString("N2") }" +
@@ -118,10 +117,10 @@ namespace ConcorrenciaSincronizacao
         }
 
         public void Deposito(int valor)
-        {
-            Controle.Add(Thread.CurrentThread.ManagedThreadId);
+        {            
             try
             {                
+                Controle.Add(Thread.CurrentThread.ManagedThreadId);
                 Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} solicitando acesso para realizar um depósito.");
                 _mut.WaitOne();
                 Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} obteve acesso." +
@@ -132,16 +131,16 @@ namespace ConcorrenciaSincronizacao
             finally
             {
                 Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} finalizou a operação.");
+                Controle.Remove(Thread.CurrentThread.ManagedThreadId);
                 _mut.ReleaseMutex();
             }
-            Controle.Remove(Thread.CurrentThread.ManagedThreadId);
         }
 
         public void Saque(int valor)
-        {
-            Controle.Add(Thread.CurrentThread.ManagedThreadId);
+        {            
             try
             {                
+                Controle.Add(Thread.CurrentThread.ManagedThreadId);
                 Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} solicitando acesso pare realizar um saque.");
                 _mut.WaitOne();
                 Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} obteve acesso. " +
@@ -158,12 +157,11 @@ namespace ConcorrenciaSincronizacao
                 }
             }
             finally
-            {
-                Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} finalizou a operação.");
-                
+            {                
+                Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} finalizou a operação.");                
+                Controle.Remove(Thread.CurrentThread.ManagedThreadId);
                 _mut.ReleaseMutex();
-            }
-            Controle.Remove(Thread.CurrentThread.ManagedThreadId);
+            }            
         }
     }
 }
