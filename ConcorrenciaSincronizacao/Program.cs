@@ -10,7 +10,7 @@
   da operação. (ok) Realize simulações com diferentes números de threads. (ok) Após, assuma que existe
   uma nova operação que realiza a consulta do saldo. (ok) A principal diferença para esta operação
   é que múltiplas threads podem consultar o saldo de uma conta simultaneamente, desde que
-  nenhuma outra thread esteja realizando uma operação de crédito ou débito. (ok?) Operações de
+  nenhuma outra thread esteja realizando uma operação de crédito ou débito. (ok) Operações de
   débito e crédito continuam precisando de acesso exclusivo aos registros da conta para
   executarem adequadamente. 
 */
@@ -27,37 +27,52 @@ namespace ConcorrenciaSincronizacao
         {
             Random rnd = new Random();
 
-            // somente um cliente foi criado para que fosse mais fácil sobrecarregar as operações das threads
-            // o saldo inicial na conta do cliente fica entre 100 e 400
-            Cliente cliente = new Cliente(1, rnd.Next(100, 401));
+            int numClientes;
+            string entrada;
+            do
+            {
+                Console.Write("Número de clientes: ");
+                entrada = Console.ReadLine();
+            } while (!int.TryParse(entrada, out numClientes) || numClientes <= 0);
 
-            Console.WriteLine($"Saldo inicial na conta: ");
-            cliente.MostraSaldo();
+            Cliente[] clientes = new Cliente[numClientes];
+
+            // o saldo inicial na conta do cliente fica entre 100 e 400
+            for (int i = 0; i < numClientes; i++)
+            {
+                clientes[i] = new Cliente(i + 1, rnd.Next(100, 401));
+            }
+            
+            Console.WriteLine("\nSaldo inicial na conta: ");
+            foreach (var cliente in clientes)
+            {
+                Console.WriteLine(cliente.ToString());
+            }
             Console.WriteLine();
 
             // o número de threads varia cada vez que o programa é executado
-            int numThreads = Environment.ProcessorCount + rnd.Next(0, 21);
+            int numThreads = Environment.ProcessorCount + rnd.Next(0, 21) + numClientes;
             Thread[] threads = new Thread[numThreads];
 
-
             for (int i = 0; i < numThreads; i++)
-            {
-                // gera números entre 0 e 2               
+            {                
+                // no primeiro random escolhemos a operação a ser realizada e no segundo o cliente
                 int op = rnd.Next(3);
+                int cliente = rnd.Next(numClientes);
 
                 if (op == 0)
                 {
-                    threads[i] = new Thread(() => cliente.Saque(rnd.Next(1, 201)));
+                    threads[i] = new Thread(() => clientes[cliente].Saque(rnd.Next(1, 201)));
                     threads[i].Start();
                 }
                 else if (op == 1)
                 {
-                    threads[i] = new Thread(() => cliente.Deposito(rnd.Next(1, 201)));                    
+                    threads[i] = new Thread(() => clientes[cliente].Deposito(rnd.Next(1, 201)));                    
                     threads[i].Start();
                 }
                 else
                 {
-                    threads[i] = new Thread(() => cliente.MostraSaldo());
+                    threads[i] = new Thread(() => clientes[cliente].MostraSaldo());
                     threads[i].Start();
                 }
             }
@@ -69,7 +84,10 @@ namespace ConcorrenciaSincronizacao
             }
 
             Console.WriteLine("\nSaldo final na conta: ");
-            cliente.MostraSaldo();            
+            foreach (var cliente in clientes)
+            {
+                Console.WriteLine(cliente.ToString());
+            }
         }
     }
 
@@ -77,10 +95,10 @@ namespace ConcorrenciaSincronizacao
     {
         public int Identificador { get; set; }
         public int Saldo { get; set; }
-        private readonly Mutex _mut = new Mutex(false, "Teste");
+        private readonly Mutex _mut = new Mutex();
         // controle do acesso ao método para mostrar o saldo
         // quando a lista tem algum elemento é porque temos operação de saque/depósito/consulta aguardando
-        // o número da thread que inicioou a operação é adicionado no inicio e removido final das operações
+        // o número da thread que iniciou a operação é adicionado no inicio e removido final das operações
         public List<int> Controle = new List<int>();
 
         public Cliente(int identificador, int saldo)
@@ -96,10 +114,10 @@ namespace ConcorrenciaSincronizacao
                 try
                 {
                     Controle.Add(Thread.CurrentThread.ManagedThreadId);
-                    Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} solicitando acesso para mostrar saldo.");                    
+                    Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} solicitando acesso para mostrar saldo do cliente { Identificador }.");                    
                     _mut.WaitOne();
                     Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} obteve acesso." +
-                        $" Mostrando o saldo da conta. Saldo = R$ { Saldo.ToString("N2") }" +
+                        $" Mostrando o saldo da conta do cliente { Identificador }. Saldo = R$ { Saldo.ToString("N2") }" +
                         $"\nThread {Thread.CurrentThread.ManagedThreadId} finalizou a operação.");
                 }
                 finally
@@ -110,7 +128,7 @@ namespace ConcorrenciaSincronizacao
             }
             else
             {
-                Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} mostrando o saldo da conta." +
+                Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} mostrando o saldo da conta do cliente { Identificador }." +
                     $" Saldo = R$ { Saldo.ToString("N2") }." +
                     $"\nThread {Thread.CurrentThread.ManagedThreadId} finalizou a operação.");
             }
@@ -121,10 +139,10 @@ namespace ConcorrenciaSincronizacao
             try
             {                
                 Controle.Add(Thread.CurrentThread.ManagedThreadId);
-                Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} solicitando acesso para realizar um depósito.");
+                Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} solicitando acesso para realizar um depósito para o cliente { Identificador }.");
                 _mut.WaitOne();
                 Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} obteve acesso." +
-                    $" Realizando depósito de R$ { valor.ToString("N2") }.");
+                    $" Realizando depósito de R$ { valor.ToString("N2") } para o cliente { Identificador }.");
                 Saldo += valor;
                 Console.WriteLine($"Novo saldo = R$ { Saldo.ToString("N2") }");
             }
@@ -141,10 +159,10 @@ namespace ConcorrenciaSincronizacao
             try
             {                
                 Controle.Add(Thread.CurrentThread.ManagedThreadId);
-                Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} solicitando acesso pare realizar um saque.");
+                Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} solicitando acesso pare realizar um saque para o cliente { Identificador }.");
                 _mut.WaitOne();
                 Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} obteve acesso. " +
-                    $"Realizando saque de R$ { valor.ToString("N2") }.");
+                    $"Realizando saque de R$ { valor.ToString("N2") } para o cliente { Identificador }.");
 
                 if ((Saldo - valor) >= 0)
                 {
@@ -162,6 +180,11 @@ namespace ConcorrenciaSincronizacao
                 Controle.Remove(Thread.CurrentThread.ManagedThreadId);
                 _mut.ReleaseMutex();
             }            
+        }
+
+        public override string ToString()
+        {
+            return $"Cliente: { Identificador } - saldo = R$ { Saldo.ToString("N2") }";
         }
     }
 }
