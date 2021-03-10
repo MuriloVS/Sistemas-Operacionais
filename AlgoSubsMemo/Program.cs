@@ -1,12 +1,15 @@
-﻿using System;
+﻿using AlgoSubsMemo.Classes;
+using System;
 
 namespace AlgoSubsMemo
 {
-    class Program
+    class Program : ProgramBase
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            LeArquivo();
+            CriaProcessos();
+            MostraProcessos();
         }
     }
 }
