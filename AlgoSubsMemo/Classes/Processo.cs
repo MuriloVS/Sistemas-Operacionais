@@ -1,25 +1,29 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace AlgoSubsMemo.Classes
 {
     public class Processo
     {
-        public int Molduras { get; set; }
+        public int NumeroMolduras { get; set; }
+        public List<int> Molduras { get; set; }
         public int NumeroPaginas { get; set; }
-        public string Paginas { get; set; }
+        public List<int> Paginas { get; set; }
 
         public Processo(int molduras, int numeroPaginas, string paginas)
         {
-            Molduras = molduras;
+            NumeroMolduras = molduras;
+            Molduras = new List<int>(molduras);
             NumeroPaginas = numeroPaginas;
-            Paginas = paginas;
+            Paginas = paginas.Split().Select(Int32.Parse).ToList();
         }
 
         public override string ToString()
         {
-            return $"Molduras: { Molduras }\n" +
+            return $"Molduras: { NumeroMolduras }\n" +
                    $"Número de Páginas: { NumeroPaginas }\n" +
-                   $"Páginas: { Paginas }\n";
+                   $"Páginas: { Paginas.ToString() }\n";
         }
     }
 }

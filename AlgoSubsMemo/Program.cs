@@ -1,4 +1,5 @@
-﻿using AlgoSubsMemo.Classes;
+﻿using AlgoSubsMemo.Algoritmos;
+using AlgoSubsMemo.Classes;
 using System;
 
 namespace AlgoSubsMemo
@@ -10,6 +11,16 @@ namespace AlgoSubsMemo
             LeArquivo();
             CriaProcessos();
             MostraProcessos();
+
+            //FIFO
+            var fifo = new FIFO();
+
+            foreach (var processo in processos)
+            {
+                fifo.Run(processo);
+            }
+            
+            
         }
     }
 }
