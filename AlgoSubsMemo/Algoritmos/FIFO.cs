@@ -11,20 +11,20 @@ namespace AlgoSubsMemo.Algoritmos
             int trocas = 0;
             int controle = 0;
 
-            foreach (var page in processo.Paginas)
+            foreach (var pagina in processo.Paginas)
             {
-                Console.WriteLine($"pagina = {page}");
-                if (!processo.Molduras.Contains(page))
+                // Console.WriteLine($"pagina = {page}");
+                if (!processo.Molduras.Contains(pagina))
                 {
                     if (processo.Molduras.Count < processo.NumeroMolduras)
                     {                        
-                        processo.Molduras.Insert(controle, page);
+                        processo.Molduras.Insert(controle, pagina);
                         controle++;
                     }                   
                     else
                     {
                         processo.Molduras.RemoveAt(fistIn);                        
-                        processo.Molduras.Insert(fistIn, page);
+                        processo.Molduras.Insert(fistIn, pagina);
                         fistIn++;
                         trocas++;
                         controle = 0;
@@ -36,15 +36,13 @@ namespace AlgoSubsMemo.Algoritmos
                     }
                 }
 
-                foreach (var mold in processo.Molduras)
-                {
-                    Console.WriteLine($"Moldura: { mold }");
-                }
-                Console.WriteLine("=============");
+                //foreach (var mold in processo.Molduras)
+                //{
+                //    Console.WriteLine($"Moldura: { mold }");
+                //}
+                //Console.WriteLine("=============");
             }
 
-
-            
             Console.WriteLine($"\nTrocas = { trocas }");
         }
     }

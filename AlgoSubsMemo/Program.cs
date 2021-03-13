@@ -11,16 +11,17 @@ namespace AlgoSubsMemo
             LeArquivo();
             CriaProcessos();
             MostraProcessos();
-
-            //FIFO
+            
             var fifo = new FIFO();
+            var mru = new MRU();
 
             foreach (var processo in processos)
             {
                 fifo.Run(processo);
+                processo.Molduras.Clear();
+                mru.Run(processo);
+                processo.Molduras.Clear();
             }
-            
-            
         }
     }
 }
