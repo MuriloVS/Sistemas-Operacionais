@@ -14,22 +14,28 @@ namespace AlgoSubsMemo.Algoritmos
             foreach (var pagina in processo.Paginas)
             {
                 // Console.WriteLine($"pagina = {page}");
+
+                // começa verificando se a página não está na moldura
                 if (!processo.Molduras.Contains(pagina))
                 {
+                    // insere a página em uma moldura vazia
                     if (processo.Molduras.Count < processo.NumeroMolduras)
                     {                        
                         processo.Molduras.Insert(controle, pagina);
                         controle++;
-                    }                   
+                    }
+                    // insere a página no índice do primeiro processo a entrar na moldura
+                    // este índice é atualizado conforme as trocas são feitas
                     else
                     {
+                        trocas++;
                         processo.Molduras.RemoveAt(fistIn);                        
                         processo.Molduras.Insert(fistIn, pagina);
-                        fistIn++;
-                        trocas++;
+                        fistIn++;                        
                         controle = 0;
                     }
 
+                    // reseta o índice para a primeira posição da moldura
                     if (fistIn == processo.NumeroMolduras)
                     {
                         fistIn = 0;
