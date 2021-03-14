@@ -1,4 +1,4 @@
-﻿/*Diferentes algoritmos de substituição de página podem ser empregados para escolher
+﻿/* Diferentes algoritmos de substituição de página podem ser empregados para escolher
  * qual página deve ser substituída da memória. O objetivo deste trabalho é comparar 
  * o desempenho dos algoritmos FIFO, Menos Recentemente Usada (MRU), Não usada
  * frequentemente (NUF) com relação ao algoritmo ótimo em termos de número de troca
@@ -35,6 +35,7 @@ namespace AlgoSubsMemo
             
             var fifo = new FIFO();
             var mru = new MRU();
+            var nuf = new NUF();
 
             foreach (var processo in processos)
             {
@@ -42,6 +43,7 @@ namespace AlgoSubsMemo
                 processo.Molduras.Clear();
                 mru.Run(processo);
                 processo.Molduras.Clear();
+                nuf.Run(processo);
             }
         }
     }

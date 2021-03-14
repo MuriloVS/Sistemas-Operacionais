@@ -7,7 +7,7 @@ namespace AlgoSubsMemo.Algoritmos
     {
         public void Run(Processo processo)
         {
-            // variável auxiliar para contar a quanto tempo a posição não é usada
+            // variável auxiliar para contar a quanto tempo a posição não é acessada
             int[] posicaoUsada = new int[processo.NumeroMolduras]; 
 
             // duas variáveis utilizadas no início, quando ainda temos molduras não preenchidas
@@ -15,45 +15,39 @@ namespace AlgoSubsMemo.Algoritmos
             int controle = 0;
 
             // utilizada quando a moldura já está cheia e é necesssário trocar uma página
-            int indiceMRU = 0;
+            int indiceMRU;
             
             int trocas = 0;
 
             foreach (var pagina in processo.Paginas)
             {
-                // INÍCIO parte inicial - moldura vazia
+                // INÍCIO parte inicial - moldura vazia/semi preenchida, página nova
                 if ((controle < processo.NumeroMolduras) && !processo.Molduras.Contains(pagina))
                 {
                     //Console.WriteLine($"Pagina = {pagina}");
 
-                    processo.Molduras.Insert(indice, pagina);                                        
-                    controle++;                    
-
-                    for (int i = 0; i < controle; i++)
-                    {                       
-                        posicaoUsada[i]++;
-                        //Console.Write($"{posicaoUsada[i]} ");
-                    }
+                    processo.Molduras.Insert(indice, pagina);
+                    controle++;
+                    
+                    AumentaTempo(posicaoUsada, controle);
                     //Console.WriteLine();
 
+                    // zera o tempo da página que foi incluída na moldura
                     posicaoUsada[indice] = 0;
-                    indiceMRU = AchaMRU(posicaoUsada);
+                    
                     indice++;
                 }
-                // FIM parte inicial - moldura vazia
+                // FIM parte inicial - moldura vazia/semi preenchida, página nova
 
                 // INÍCIO parte inicial - moldura semi preenchida, página repetida
                 else if (processo.Molduras.Contains(pagina))
                 {
                     //Console.WriteLine($"Pagina = {pagina}");
 
-                    for (int i = 0; i < controle; i++)
-                    {
-                        posicaoUsada[i]++;
-                        //Console.Write($"{posicaoUsada[i]} ");
-                    }
+                    AumentaTempo(posicaoUsada, controle);
                     //Console.WriteLine();
 
+                    // zera o tempo da página que já está na moldura e foi acessada novamente
                     posicaoUsada[processo.Molduras.IndexOf(pagina)] = 0;
                 }
                 // FIM parte inicial - moldura semi preenchida, página repetida
@@ -68,15 +62,13 @@ namespace AlgoSubsMemo.Algoritmos
 
                     processo.Molduras.RemoveAt(indiceMRU);
                     processo.Molduras.Insert(indiceMRU, pagina);
-                    
-                    for (int i = 0; i < controle; i++)
-                    {
-                        posicaoUsada[i]++;
-                        //Console.Write($"{posicaoUsada[i]} ");
-                    }
+
+                    AumentaTempo(posicaoUsada, controle);
                     //Console.WriteLine();
 
+                    // zera o tempo da página trocada
                     posicaoUsada[indiceMRU] = 0;
+
                     indice++;
                 }
                 // FIM moldura preenchida, usar índice da moldura MRU
@@ -91,13 +83,23 @@ namespace AlgoSubsMemo.Algoritmos
             Console.WriteLine($"Trocas = {trocas}");
         }
 
+        // aumenta em um o "tempo" que as páginas não são acessadas
+        private static void AumentaTempo(int[] posicaoUsada, int controle)
+        {
+            for (int i = 0; i < controle; i++)
+            {
+                posicaoUsada[i]++;
+                //Console.Write($"{posicaoUsada[i]} ");
+            }
+        }
+
         // retorna o índice do MRU na moldura
         public int AchaMRU(int[] posicoes)
         {
-            int max = -1;
-            int index = -1;
+            int max = posicoes[0];
+            int index = 0;
 
-            for (int i = 0; i < posicoes.Length; i++)
+            for (int i = 1; i < posicoes.Length; i++)
             {
                 if (posicoes[i] > max)
                 {
