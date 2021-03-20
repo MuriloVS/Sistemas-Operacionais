@@ -11,6 +11,7 @@ namespace AlgoSubsMemo.Classes
         public int NumeroPaginas { get; set; }
         public List<int> Paginas { get; set; }
 
+
         public Processo(int molduras, int numeroPaginas, string paginas)
         {
             NumeroMolduras = molduras;

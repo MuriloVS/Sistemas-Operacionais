@@ -5,7 +5,7 @@ namespace AlgoSubsMemo.Algoritmos
 {
     class FIFO
     {
-        public void Run(Processo processo)
+        public int Run(Processo processo)
         {
             int fistIn = 0;
             int trocas = 0;
@@ -49,7 +49,8 @@ namespace AlgoSubsMemo.Algoritmos
                 //Console.WriteLine("=============");
             }
 
-            Console.WriteLine($"\nTrocas = { trocas }");
+            //Console.Write($"FIFO: { trocas } ");
+            return trocas;
         }
     }
 }

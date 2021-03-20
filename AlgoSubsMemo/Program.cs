@@ -22,6 +22,8 @@
 using AlgoSubsMemo.Algoritmos;
 using AlgoSubsMemo.Classes;
 using System;
+using System.Text;
+using System.Linq;
 
 namespace AlgoSubsMemo
 {
@@ -31,19 +33,52 @@ namespace AlgoSubsMemo
         {
             LeArquivo();
             CriaProcessos();
-            MostraProcessos();
+            //MostraProcessos();
             
             var fifo = new FIFO();
             var mru = new MRU();
             var nuf = new NUF();
+            var optimum = new OPTIMUM();
 
+            int[] trocas = new int[3];
+            int min;
+            int melhor;
+            StringBuilder algoritmos = new StringBuilder();
+            
             foreach (var processo in processos)
-            {
-                fifo.Run(processo);
+            {              
+                trocas[0] = fifo.Run(processo);                
                 processo.Molduras.Clear();
-                mru.Run(processo);
+                trocas[1] = mru.Run(processo);
                 processo.Molduras.Clear();
-                nuf.Run(processo);
+                trocas[2] = nuf.Run(processo);
+                processo.Molduras.Clear();
+                melhor = optimum.Run(processo);
+
+                min = trocas.Min();
+
+                for (int i = 0; i < trocas.Length; i++)
+                {
+                    if (trocas[i] == min)
+                    {
+                        if (i == 0)
+                        {
+                            algoritmos.Append("FIFO ");
+                        }
+                        else if (i == 1)
+                        {
+                            algoritmos.Append(" MRU ");
+                        }
+                        else
+                        {
+                            algoritmos.Append(" NUF");
+                        }
+                    }
+                }
+
+                Console.WriteLine($"FIFO: {trocas[0]} | MRU: {trocas[1]} | NUF: {trocas[2]} | Ótimo: {melhor} | Melhor(es): {algoritmos}");
+
+                algoritmos.Clear();
             }
         }
     }

@@ -6,7 +6,7 @@ namespace AlgoSubsMemo.Algoritmos
 {
     class NUF
     {
-        public void Run(Processo processo)
+        public int Run(Processo processo)
         {
             // variável para controlar quantas vezes uma página foi acessada
             // lembra que o elemento em si é sempre índice do vetor + 1
@@ -19,17 +19,23 @@ namespace AlgoSubsMemo.Algoritmos
 
             foreach (var pagina in processo.Paginas)
             {
-                
+                // INÍCIO parte inicial - moldura vazia/semi preenchida, página nova
                 if (indice < processo.NumeroMolduras && !processo.Molduras.Contains(pagina))
                 {                    
                     processo.Molduras.Insert(indice, pagina);                    
                     acessoPaginas[pagina - 1]++;
                     indice++;                   
                 }
+                // FIM parte inicial - moldura vazia/semi preenchida, página nova
+
+                // INÍCIO parte inicial - moldura semi preenchida, página repetida
                 else if (processo.Molduras.Contains(pagina))
                 {                    
                     acessoPaginas[pagina-1]++;
                 }
+                // FIM parte inicial - moldura semi preenchida, página repetida
+
+                // INÍCIO moldura preenchida, usar índice do processo NUF
                 else
                 {
                     trocas++;
@@ -42,15 +48,18 @@ namespace AlgoSubsMemo.Algoritmos
 
                     acessoPaginas[pagina-1]++;
                 }
+                // FIM moldura preenchida, usar índice do processo NUF
 
-                for (int i = 0; i < acessoPaginas.Length; i++)
-                {
-                    Console.Write($"{acessoPaginas[i]} ");
-                }
-                Console.WriteLine();
+                //for (int i = 0; i < acessoPaginas.Length; i++)
+                //{
+                //    Console.Write($"{acessoPaginas[i]} ");
+                //}
+                //Console.WriteLine();
             }
 
-            Console.WriteLine($"Trocas = {trocas}");
+            //Console.WriteLine($"| NUF: { trocas }");
+
+            return trocas;
         }
 
         private int AchaNUF(int[] acessoPaginas, List<int> moldura)

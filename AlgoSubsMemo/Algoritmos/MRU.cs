@@ -5,7 +5,7 @@ namespace AlgoSubsMemo.Algoritmos
 {
     class MRU
     {
-        public void Run(Processo processo)
+        public int Run(Processo processo)
         {
             // variável auxiliar para contar a quanto tempo a posição não é acessada
             int[] posicaoUsada = new int[processo.NumeroMolduras]; 
@@ -52,7 +52,7 @@ namespace AlgoSubsMemo.Algoritmos
                 }
                 // FIM parte inicial - moldura semi preenchida, página repetida
 
-                // INÍCIO moldura preenchida, usar índice da moldura MRU 
+                // INÍCIO moldura preenchida, encontrar índice pa página MRU nas molduras
                 else
                 {
                     //Console.WriteLine($"Pagina = {pagina}");
@@ -71,7 +71,7 @@ namespace AlgoSubsMemo.Algoritmos
 
                     indice++;
                 }
-                // FIM moldura preenchida, usar índice da moldura MRU
+                // FIM moldura preenchida, encontrar índice pa página MRU nas molduras
 
                 //foreach (var mold in processo.Molduras)
                 //{
@@ -80,7 +80,9 @@ namespace AlgoSubsMemo.Algoritmos
                 //Console.WriteLine("=============");
             }
 
-            Console.WriteLine($"Trocas = {trocas}");
+            //Console.Write($"| MRU: { trocas } ");
+
+            return trocas;
         }
 
         // aumenta em um o "tempo" que as páginas não são acessadas
