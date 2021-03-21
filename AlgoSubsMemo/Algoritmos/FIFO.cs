@@ -9,38 +9,44 @@ namespace AlgoSubsMemo.Algoritmos
         {
             int fistIn = 0;
             int trocas = 0;
-            int controle = 0;
+            int indice = 0;
 
             foreach (var pagina in processo.Paginas)
             {
                 // Console.WriteLine($"pagina = {page}");
 
-                // começa verificando se a página não está na moldura
-                if (!processo.Molduras.Contains(pagina))
+                // INÍCIO parte inicial - moldura vazia/semi preenchida, página nova
+                if (processo.Molduras.Count < processo.NumeroMolduras && !processo.Molduras.Contains(pagina))
                 {
-                    // insere a página em uma moldura vazia
-                    if (processo.Molduras.Count < processo.NumeroMolduras)
-                    {                        
-                        processo.Molduras.Insert(controle, pagina);
-                        controle++;
-                    }
-                    // insere a página no índice do primeiro processo a entrar na moldura
-                    // este índice é atualizado conforme as trocas são feitas
-                    else
-                    {
-                        trocas++;
-                        processo.Molduras.RemoveAt(fistIn);                        
-                        processo.Molduras.Insert(fistIn, pagina);
-                        fistIn++;                        
-                        controle = 0;
-                    }
-
-                    // reseta o índice para a primeira posição da moldura
-                    if (fistIn == processo.NumeroMolduras)
-                    {
-                        fistIn = 0;
-                    }
+                    processo.Molduras.Insert(indice, pagina);
+                    indice++;
                 }
+                // FIM parte inicial - moldura vazia/semi preenchida, página nova
+
+                // INÍCIO parte inicial - moldura semi preenchida, página repetida
+                else if (processo.Molduras.Contains(pagina))
+                {
+                    continue;
+                }
+                // FIM parte inicial - moldura semi preenchida, página repetida
+
+                // INÍCIO moldura preenchida, usar índice da primeira página a entrar na moldura
+                else
+                {                    
+                    processo.Molduras.RemoveAt(fistIn);
+                    processo.Molduras.Insert(fistIn, pagina);
+                    fistIn++;
+                    indice = 0;
+
+                    trocas++;
+                }
+                // FIM moldura preenchida, usar índice da primeira página a entrar na moldura
+
+                // reseta o índice para a primeira posição da moldura
+                if (fistIn == processo.NumeroMolduras)
+                {
+                    fistIn = 0;
+                }                
 
                 //foreach (var mold in processo.Molduras)
                 //{

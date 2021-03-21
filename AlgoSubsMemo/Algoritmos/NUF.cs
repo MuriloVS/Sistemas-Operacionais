@@ -9,7 +9,7 @@ namespace AlgoSubsMemo.Algoritmos
         public int Run(Processo processo)
         {
             // variável para controlar quantas vezes uma página foi acessada
-            // lembra que o elemento em si é sempre índice do vetor + 1
+            // lembra que o elemento em si, a página,  é sempre índice do vetor + 1
             int[] acessoPaginas = new int[processo.NumeroPaginas];
             
             int indice = 0;
@@ -38,15 +38,14 @@ namespace AlgoSubsMemo.Algoritmos
                 // INÍCIO moldura preenchida, usar índice do processo NUF
                 else
                 {
-                    trocas++;
-
-                    menosUtilizado = AchaNUF(acessoPaginas, processo.Molduras) ;                    
+                    menosUtilizado = AchaNUF(acessoPaginas, processo.Molduras);                    
                     indiceNaMoldura = processo.Molduras.IndexOf(menosUtilizado);
                     
                     processo.Molduras.RemoveAt(indiceNaMoldura);
                     processo.Molduras.Insert(indiceNaMoldura, pagina);
 
                     acessoPaginas[pagina-1]++;
+                    trocas++;
                 }
                 // FIM moldura preenchida, usar índice do processo NUF
 

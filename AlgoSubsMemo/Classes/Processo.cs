@@ -24,7 +24,7 @@ namespace AlgoSubsMemo.Classes
         {
             return $"Molduras: { NumeroMolduras }\n" +
                    $"Número de Páginas: { NumeroPaginas }\n" +
-                   $"Páginas: { Paginas.ToString() }\n";
+                   $"Acessos às Páginas: { Paginas.Count }\n";
         }
     }
 }

@@ -33,7 +33,7 @@ namespace AlgoSubsMemo
         {
             LeArquivo();
             CriaProcessos();
-            //MostraProcessos();
+            MostraProcessos();
             
             var fifo = new FIFO();
             var mru = new MRU();

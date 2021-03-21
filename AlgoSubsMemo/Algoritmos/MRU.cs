@@ -56,9 +56,8 @@ namespace AlgoSubsMemo.Algoritmos
                 else
                 {
                     //Console.WriteLine($"Pagina = {pagina}");
-                    
-                    trocas++;                   
                     indiceMRU = AchaMRU(posicaoUsada);
+                    //Console.WriteLine($"Ind MRU: {indiceMRU}");
 
                     processo.Molduras.RemoveAt(indiceMRU);
                     processo.Molduras.Insert(indiceMRU, pagina);
@@ -70,6 +69,7 @@ namespace AlgoSubsMemo.Algoritmos
                     posicaoUsada[indiceMRU] = 0;
 
                     indice++;
+                    trocas++;
                 }
                 // FIM moldura preenchida, encontrar índice pa página MRU nas molduras
 
@@ -93,6 +93,7 @@ namespace AlgoSubsMemo.Algoritmos
                 posicaoUsada[i]++;
                 //Console.Write($"{posicaoUsada[i]} ");
             }
+            //Console.WriteLine();
         }
 
         // retorna o índice do MRU na moldura
