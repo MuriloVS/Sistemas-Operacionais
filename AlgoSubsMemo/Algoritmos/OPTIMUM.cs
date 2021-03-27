@@ -1,4 +1,5 @@
 ﻿using AlgoSubsMemo.Classes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -56,6 +57,7 @@ namespace AlgoSubsMemo.Algoritmos
             return trocas;
         }
 
+        // encontra a página que vai levar mais tempo a ser requerida novamente
         private int AchaMaiorTempo(Processo processo, int inicio)
         {            
             int tempo = 0;
@@ -72,9 +74,11 @@ namespace AlgoSubsMemo.Algoritmos
                     }                    
                 }
                 //Console.WriteLine($"Pagina: {pagina} - Tempo: {tempo}");
+                
                 dict.Add(pagina, tempo);
                 tempo = 0;
             }
+            //Console.WriteLine("===================================");
 
             return dict.Aggregate((x, y) => x.Value > y.Value ? x : y).Key;
         }

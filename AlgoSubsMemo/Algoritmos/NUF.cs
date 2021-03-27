@@ -9,7 +9,7 @@ namespace AlgoSubsMemo.Algoritmos
         public int Run(Processo processo)
         {
             // variável para controlar quantas vezes uma página foi acessada
-            // lembra que o elemento em si, a página,  é sempre índice do vetor + 1
+            // lembrar que o elemento em si, a página, é sempre índice do vetor + 1
             int[] acessoPaginas = new int[processo.NumeroPaginas];
             
             int indice = 0;
@@ -44,6 +44,9 @@ namespace AlgoSubsMemo.Algoritmos
                     processo.Molduras.RemoveAt(indiceNaMoldura);
                     processo.Molduras.Insert(indiceNaMoldura, pagina);
 
+                    // inserido conforme orientação recebida por e-mail
+                    acessoPaginas[menosUtilizado - 1] = 0;
+
                     acessoPaginas[pagina-1]++;
                     trocas++;
                 }
@@ -56,11 +59,10 @@ namespace AlgoSubsMemo.Algoritmos
                 //Console.WriteLine();
             }
 
-            //Console.WriteLine($"| NUF: { trocas }");
-
             return trocas;
         }
 
+        // método que procura e retorno o valor na moldura com acesso menos frequente
         private int AchaNUF(int[] acessoPaginas, List<int> moldura)
         {
             int menor = int.MaxValue;

@@ -33,7 +33,7 @@ namespace AlgoSubsMemo
         {
             LeArquivo();
             CriaProcessos();
-            MostraProcessos();
+            //MostraProcessos();
             
             var fifo = new FIFO();
             var mru = new MRU();
@@ -54,6 +54,7 @@ namespace AlgoSubsMemo
                 trocas[2] = nuf.Run(processo);
                 processo.Molduras.Clear();
                 melhor = optimum.Run(processo);
+                processo.Molduras.Clear();
 
                 min = trocas.Min();
 
@@ -67,11 +68,11 @@ namespace AlgoSubsMemo
                         }
                         else if (i == 1)
                         {
-                            algoritmos.Append(" MRU ");
+                            algoritmos.Append("MRU ");
                         }
                         else
                         {
-                            algoritmos.Append(" NUF");
+                            algoritmos.Append("NUF");
                         }
                     }
                 }
