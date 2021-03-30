@@ -77,7 +77,9 @@ namespace AlgoSubsMemo
                     }
                 }
 
-                Console.WriteLine($"FIFO: {trocas[0]} | MRU: {trocas[1]} | NUF: {trocas[2]} | Ótimo: {melhor} | Melhor(es): {algoritmos}");
+                //Console.WriteLine($"FIFO: {trocas[0]} | MRU: {trocas[1]} | NUF: {trocas[2]} | Ótimo: {melhor} | Melhor(es): {algoritmos}");
+
+                Console.WriteLine($"{trocas[0]}|{trocas[1]}|{trocas[2]}|{melhor}|{algoritmos}");
 
                 algoritmos.Clear();
             }

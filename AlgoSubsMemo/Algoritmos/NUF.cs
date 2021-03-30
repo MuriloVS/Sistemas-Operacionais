@@ -38,9 +38,13 @@ namespace AlgoSubsMemo.Algoritmos
                 // INÍCIO moldura preenchida, usar índice do processo NUF
                 else
                 {
+                    // Console.WriteLine($"Página a ser inserida: {pagina}");
+
                     menosUtilizado = AchaNUF(acessoPaginas, processo.Molduras);                    
                     indiceNaMoldura = processo.Molduras.IndexOf(menosUtilizado);
-                    
+
+                    // Console.WriteLine($"Página menos acessada: {menosUtilizado}");
+
                     processo.Molduras.RemoveAt(indiceNaMoldura);
                     processo.Molduras.Insert(indiceNaMoldura, pagina);
 
@@ -63,6 +67,7 @@ namespace AlgoSubsMemo.Algoritmos
         }
 
         // método que procura e retorno o valor na moldura com acesso menos frequente
+        // em caso de empate, retorna o primeiro elmento encontrado
         private int AchaNUF(int[] acessoPaginas, List<int> moldura)
         {
             int menor = int.MaxValue;

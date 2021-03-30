@@ -97,6 +97,7 @@ namespace AlgoSubsMemo.Algoritmos
         }
 
         // retorna o índice do MRU na moldura
+        // em caso de empate, retorna o primeiro elemento encontrado
         public int AchaMRU(int[] posicoes)
         {
             int max = posicoes[0];
