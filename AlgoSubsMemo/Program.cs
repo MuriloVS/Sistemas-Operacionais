@@ -77,7 +77,17 @@ namespace AlgoSubsMemo
                     }
                 }
 
-                //Console.WriteLine($"FIFO: {trocas[0]} | MRU: {trocas[1]} | NUF: {trocas[2]} | Ótimo: {melhor} | Melhor(es): {algoritmos}");
+                // Console.WriteLine($"FIFO: {trocas[0]} | MRU: {trocas[1]} | NUF: {trocas[2]} | Ótimo: {melhor} | Melhor(es): {algoritmos}");
+
+                // Console.WriteLine($"{trocas[0]}|{trocas[1]}|{trocas[2]}|{melhor}|{algoritmos}");
+
+                // correção para a saída ficar a igual a proposta sem alterar o resto
+                // 5 caracteres do 'FIFO ' que é o maior
+                if (algoritmos.Length > 5)
+                {
+                    algoritmos.Clear();
+                    algoritmos.Append("empate");
+                }
 
                 Console.WriteLine($"{trocas[0]}|{trocas[1]}|{trocas[2]}|{melhor}|{algoritmos}");
 

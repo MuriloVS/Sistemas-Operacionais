@@ -24,7 +24,8 @@ namespace AlgoSubsMemo.Algoritmos
                 {                    
                     processo.Molduras.Insert(indice, pagina);                    
                     acessoPaginas[pagina - 1]++;
-                    indice++;                   
+                    indice++;
+                    trocas++;
                 }
                 // FIM parte inicial - moldura vazia/semi preenchida, página nova
 
@@ -67,7 +68,7 @@ namespace AlgoSubsMemo.Algoritmos
         }
 
         // método que procura e retorno o valor na moldura com acesso menos frequente
-        // em caso de empate, retorna o primeiro elmento encontrado
+        // em caso de empate, retorna o primeiro elemento encontrado
         private int AchaNUF(int[] acessoPaginas, List<int> moldura)
         {
             int menor = int.MaxValue;

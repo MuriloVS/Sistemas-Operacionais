@@ -20,6 +20,7 @@ namespace AlgoSubsMemo.Algoritmos
                 {
                     processo.Molduras.Insert(indice, pagina);
                     indice++;
+                    trocas++;
                 }
                 // FIM parte inicial - moldura vazia/semi preenchida, página nova
 
@@ -46,7 +47,7 @@ namespace AlgoSubsMemo.Algoritmos
                 if (fistIn == processo.NumeroMolduras)
                 {
                     fistIn = 0;
-                }                
+                }
 
                 //foreach (var mold in processo.Molduras)
                 //{
@@ -55,7 +56,6 @@ namespace AlgoSubsMemo.Algoritmos
                 //Console.WriteLine("=============");
             }
 
-            //Console.Write($"FIFO: { trocas } ");
             return trocas;
         }
     }

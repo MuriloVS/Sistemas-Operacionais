@@ -36,6 +36,7 @@ namespace AlgoSubsMemo.Algoritmos
                     posicaoUsada[indice] = 0;
                     
                     indice++;
+                    trocas++;
                 }
                 // FIM parte inicial - moldura vazia/semi preenchida, página nova
 

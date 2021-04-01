@@ -24,6 +24,7 @@ namespace AlgoSubsMemo.Algoritmos
                     processo.Molduras.Insert(indice, pagina);         
                     indice++;
                     contadorAux++;
+                    trocas++;
                 }
                 // FIM parte inicial - moldura vazia/semi preenchida, página nova
 
